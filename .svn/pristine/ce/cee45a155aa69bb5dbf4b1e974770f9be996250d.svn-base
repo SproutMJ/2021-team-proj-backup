@@ -1,0 +1,13 @@
+package service;
+
+import java.io.File;
+
+public class CompressionServiceImpl implements CompressionService{
+
+	@Override
+	public File getCompressFile(File file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

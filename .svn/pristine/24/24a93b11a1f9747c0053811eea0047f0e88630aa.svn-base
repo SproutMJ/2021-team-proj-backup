@@ -1,0 +1,212 @@
+package view;
+
+import java.awt.Color;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+
+public class OpnZipFilePanel extends JPanel {
+	
+	private JButton Btn_FileOpn;
+	private JButton Btn_FileSolve;
+	private JButton Btn_NewComp;
+	private JButton Btn_AddFile;
+	private JButton Btn_DeleteFile;
+	private JPanel BtnPanel;
+	private JScrollPane directoryPane;
+	private JTree tree;
+	private DefaultTreeModel model;
+	private DefaultMutableTreeNode root;
+	private JScrollPane scrollPane;
+	private JTable table;
+	private String[] headings;
+	private String[][] data;
+	private DefaultTableModel defaultTableModel;
+
+	public OpnZipFilePanel() {
+		
+			setVisible(false);
+			setBorder(new EmptyBorder(5, 5, 5, 5));
+			
+			setBounds(0, 0, 800, 600);
+			setBackground(Color.GRAY);
+			setLayout(null);
+			setLayout(null);
+			
+			
+			// BtnPanel just for design
+			BtnPanel = new JPanel();
+			BtnPanel.setBounds(0, 26, 800, 88);
+			BtnPanel.setBackground(Color.WHITE);
+			add(BtnPanel);
+			BtnPanel.setLayout(null);
+			
+			Btn_FileOpn = new JButton("");
+			Btn_FileOpn.setBounds(0, 0, 73, 88);
+			BtnPanel.add(Btn_FileOpn);
+			Btn_FileOpn.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_FileOpen.png"));
+			
+			Btn_FileSolve = new JButton("");
+			Btn_FileSolve.setBounds(73, 0, 73, 88);
+			BtnPanel.add(Btn_FileSolve);
+			Btn_FileSolve.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_FileSolve.png"));
+			
+			Btn_NewComp = new JButton("");
+			Btn_NewComp.setBounds(144, 0, 73, 88);
+			BtnPanel.add(Btn_NewComp);
+			Btn_NewComp.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_NewComp.png"));
+			
+			Btn_AddFile = new JButton("");
+			Btn_AddFile.setBounds(219, 0, 73, 88);
+			BtnPanel.add(Btn_AddFile);
+			Btn_AddFile.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_AddFile.png"));
+			
+			Btn_DeleteFile = new JButton("");
+			Btn_DeleteFile.setBounds(293, 0, 73, 88);
+			BtnPanel.add(Btn_DeleteFile);
+			Btn_DeleteFile.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_DeleteFile.png"));
+						
+			root = new DefaultMutableTreeNode("test");
+			root.setUserObject("test2");
+			//DefaultMutableTreeNode child1 = new DefaultMutableTreeNode("실제 파일 이름");
+
+			//root.add(child1);
+			
+			tree = new JTree(root);
+			model = new DefaultTreeModel(root);
+			tree.setModel(model);		
+			tree.setVisibleRowCount(10);
+						
+			// File's Explorer
+			directoryPane = new JScrollPane(tree);
+			directoryPane.setBounds(0, 117, 187, 483);
+			directoryPane.setBackground(Color.WHITE);
+			add(directoryPane);
+			
+			headings = new String[] {"파일명", "압축 크기", "원본 크기"};
+			data = new String[][] {
+				{"myFile.exe", "300byte", "557byte"}
+			};
+			
+			defaultTableModel = new DefaultTableModel(data, headings);
+			table = new JTable(defaultTableModel);
+			
+			scrollPane = new JScrollPane(table);
+			scrollPane.setBounds(199, 117, 601, 483);
+			scrollPane.getViewport().setBackground(Color.WHITE);
+			add(scrollPane);
+			
+		}
+
+	public JButton getBtn_FileOpn() {
+		return Btn_FileOpn;
+	}
+
+	public void setBtn_FileOpn(JButton btn_FileOpn) {
+		Btn_FileOpn = btn_FileOpn;
+	}
+
+	public JButton getBtn_FileSolve() {
+		return Btn_FileSolve;
+	}
+
+	public void setBtn_FileSolve(JButton btn_FileSolve) {
+		Btn_FileSolve = btn_FileSolve;
+	}
+
+	public JButton getBtn_NewComp() {
+		return Btn_NewComp;
+	}
+
+	public void setBtn_NewComp(JButton btn_NewComp) {
+		Btn_NewComp = btn_NewComp;
+	}
+
+	public JButton getBtn_AddFile() {
+		return Btn_AddFile;
+	}
+
+	public void setBtn_AddFile(JButton btn_AddFile) {
+		Btn_AddFile = btn_AddFile;
+	}
+
+	public JButton getBtn_DeleteFile() {
+		return Btn_DeleteFile;
+	}
+
+	public void setBtn_DeleteFile(JButton btn_DeleteFile) {
+		Btn_DeleteFile = btn_DeleteFile;
+	}
+
+	public JPanel getBtnPanel() {
+		return BtnPanel;
+	}
+
+	public void setBtnPanel(JPanel btnPanel) {
+		BtnPanel = btnPanel;
+	}
+
+	public JScrollPane getDirectoryPane() {
+		return directoryPane;
+	}
+
+	public void setDirectoryPane(JScrollPane directoryPane) {
+		this.directoryPane = directoryPane;
+	}
+
+	public JTree getTree() {
+		return tree;
+	}
+
+	public void setTree(JTree tree) {
+		this.tree = tree;
+	}
+
+	public DefaultTreeModel getModel() {
+		return model;
+	}
+
+	public void setModel(DefaultTreeModel model) {
+		this.model = model;
+	}
+
+	public DefaultMutableTreeNode getRoot() {
+		return root;
+	}
+
+	public void setRoot(DefaultMutableTreeNode root) {
+		this.root = root;
+	}
+
+	public JScrollPane getScrollPane() {
+		return scrollPane;
+	}
+
+	public void setScrollPane(JScrollPane scrollPane) {
+		this.scrollPane = scrollPane;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public void setTable(JTable table) {
+		this.table = table;
+	}
+
+	public String[] getHeadings() {
+		return headings;
+	}
+
+	public void setHeadings(String[] headings) {
+		this.headings = headings;
+	}
+}

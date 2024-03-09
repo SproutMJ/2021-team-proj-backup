@@ -1,0 +1,29 @@
+package utility;
+
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+
+public class HuffmanDecompress {
+
+	public byte[] decompress(Hashtable<String, Integer> decodingMap, String encodedBinary, int originFileSize) {
+		StringBuilder tmp = new StringBuilder();
+		StringBuilder decodingStr = new StringBuilder();
+		byte[] decodedByte = new byte[originFileSize];
+		int k = 0;
+		
+		for(int i = 0; i < encodedBinary.length(); i++) {
+			tmp.append(encodedBinary.charAt(i));
+			if(decodingMap.get(tmp.toString()) != null) {
+				decodingStr.append(decodingMap.get(tmp.toString()));
+				byte b = (byte) (decodingMap.get(tmp.toString()).byteValue()-128);
+				decodedByte[k] = b;
+				k++;
+				System.out.println(k);
+				tmp.setLength(0);
+			}
+		}
+		return decodedByte;
+	}
+	
+}

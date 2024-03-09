@@ -1,0 +1,91 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import controller.MainPanelController;
+import javax.swing.JLabel;
+
+public class MainPanel extends JPanel {
+    private MainPanelController controller;
+    private JPanel MainPage;
+	private JButton buttonCompressed;
+	private JButton buttonSolve;
+	private JButton btnComLan;
+	private JButton btnSolLan;
+	private JPanel CompressedPage;
+	private JPanel SolvePage;
+
+	public MainPanel() {
+			
+			setBorder(new EmptyBorder(5, 5, 5, 5));
+			setLayout(null);
+			
+//			MainPage = new JPanel();
+			setBounds(0, 0, 800, 600);
+			setBackground(Color.BLACK);
+			// frame.getContentPane().add(MainPage);
+			setLayout(null);
+			
+			buttonCompressed = new JButton("");
+			buttonCompressed.setBackground(Color.BLACK);
+			buttonCompressed.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//buttonCompressed.jpg"));
+			buttonCompressed.setBounds(180, 220, 158, 120);
+			add(buttonCompressed);
+			
+			buttonSolve = new JButton("");
+			buttonSolve.setBackground(Color.BLACK);
+			buttonSolve.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//buttonSolve.jpg"));
+			buttonSolve.setBounds(440, 220, 158, 119);
+			add(buttonSolve);
+			
+			btnComLan = new JButton("\uC555\uCD95 \uD558\uAE30");
+			btnComLan.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+			btnComLan.setForeground(Color.WHITE);
+			btnComLan.setBackground(Color.BLACK);
+			btnComLan.setBounds(248, 340, 90, 25);
+			add(btnComLan);
+			
+			btnSolLan = new JButton("\uC555\uCD95 \uD480\uAE30");
+			btnSolLan.setForeground(Color.WHITE);
+			btnSolLan.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+			btnSolLan.setBackground(Color.BLACK);
+			btnSolLan.setBounds(508, 340, 90, 25);
+			add(btnSolLan);
+			
+			CompressedPage = new JPanel();
+			CompressedPage.setBounds(0, 0, 800, 600);
+			// frame.getContentPane().add(CompressedPage);
+			
+			SolvePage = new JPanel();
+			SolvePage.setBounds(0, 0, 10, 10);
+			// frame.getContentPane().add(SolvePage);
+			
+			CompressedPage.setVisible(false);
+			SolvePage.setVisible(false);
+			
+			controller = new MainPanelController(this);
+		}
+    public JButton getbuttonCompressed() {
+        return this.buttonCompressed;
+    }
+    
+    public JButton getbuttonSolve() {
+        return this.buttonSolve;
+    }
+    
+    public JButton getbtnComLan() {
+        return this.btnComLan;
+    }
+    
+    public JButton getbtnSolLan() {
+    	return this.btnSolLan;
+    }
+    
+   
+}

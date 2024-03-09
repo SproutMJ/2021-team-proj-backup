@@ -1,0 +1,154 @@
+package view;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JPopupMenu;
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JMenuItem;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.Box;
+
+public class Frame extends JFrame {
+
+	private JPanel mainPanel;
+
+	public Frame() {
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 600);
+		mainPanel = new MainPanel();
+		mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		mainPanel.setLayout(null);
+		setContentPane(mainPanel);
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 800, 30);
+		this.add(menuBar);
+		
+		JMenu JMFile = new JMenu("파일");
+		menuBar.add(JMFile);
+		
+		JMenuItem OpnCompFile = new JMenuItem("압축 파일 열기");
+		JMFile.add(OpnCompFile);
+		
+		JMenu RecentFile = new JMenu("최근 파일");
+		JMFile.add(RecentFile);
+		
+		JMenuItem Dummy_Explaind = new JMenuItem("동적할당으로 리스트에 추가합니다");
+		RecentFile.add(Dummy_Explaind);
+		
+		JMenuItem DeleteList = new JMenuItem("목록 지우기");
+		RecentFile.add(DeleteList);
+		
+		JMenuItem Compression = new JMenuItem("새로 압축");
+		JMFile.add(Compression);
+		
+		JMenuItem CloseCompFile = new JMenuItem("압축 파일 닫기");
+		JMFile.add(CloseCompFile);
+		
+		JMenuItem SaveOtherName = new JMenuItem("다른 이름으로 저장");
+		JMFile.add(SaveOtherName);
+		
+		// 압축 파일을 휴지통으로 보낸다
+		JMenuItem DeleteCompFile = new JMenuItem("압축 파일 삭제");
+		JMFile.add(DeleteCompFile);
+		
+		// 휴지통으로 보내지 않고 완전 삭제
+		JMenuItem SafeDeleteCompFile = new JMenuItem("압축 파일 완전 삭제");
+		JMFile.add(SafeDeleteCompFile);
+		
+		JMenuItem OpnLocalFolder = new JMenuItem("압축 파일이 있는 폴더 열기");
+		JMFile.add(OpnLocalFolder);
+		
+		JMenuItem UnZip = new JMenuItem("압축 풀기");
+		JMFile.add(UnZip);
+		
+		JMenuItem Exit = new JMenuItem("종료");
+		JMFile.add(Exit);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMEdit = new JMenu("편집");
+		menuBar.add(JMEdit);
+		
+		JMenuItem ChangeName = new JMenuItem("이름 바꾸기");
+		JMEdit.add(ChangeName);
+		
+		JMenuItem AddFile = new JMenuItem("파일 추가");
+		JMEdit.add(AddFile);
+		
+		JMenuItem DeleteFile = new JMenuItem("파일 삭제");
+		JMEdit.add(DeleteFile);
+		
+		JMenuItem EditFileExpl = new JMenuItem("압축 파일 설명 편집");
+		JMEdit.add(EditFileExpl);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMFind = new JMenu("찾기");
+		menuBar.add(JMFind);
+		
+		JMenuItem SearchFile = new JMenuItem("파일 찾기");
+		JMFind.add(SearchFile);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMSetting = new JMenu("설정");
+		menuBar.add(JMSetting);
+		
+		JMenuItem Setting = new JMenuItem("환경 설정");
+		JMSetting.add(Setting);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMView = new JMenu("보기");
+		menuBar.add(JMView);
+		
+		JMenu ViewFileList = new JMenu("파일 목록");
+		JMView.add(ViewFileList);
+		
+		JMenuItem ViewDetails = new JMenuItem("자세히");
+		ViewFileList.add(ViewDetails);
+		
+		JMenuItem ViewSimply = new JMenuItem("간단히");
+		ViewFileList.add(ViewSimply);
+		
+		JMenuItem ViewIcon = new JMenuItem("아이콘");
+		ViewFileList.add(ViewIcon);
+		
+		JMenuItem ViewBIcon = new JMenuItem("큰 아이콘");
+		ViewFileList.add(ViewBIcon);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMHelp = new JMenu("도움말");
+		menuBar.add(JMHelp);
+		
+		JMenuItem Info = new JMenuItem("정보");
+		JMHelp.add(Info);
+	}
+	
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
+}

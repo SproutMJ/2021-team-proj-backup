@@ -1,0 +1,28 @@
+package view;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import controller.MainPanelController;
+
+public class MainPanel extends JPanel {
+
+	private JButton btnNewButton;
+	private MainPanelController controller;
+	
+	public MainPanel() {
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(null);
+		
+		btnNewButton = new JButton("New button");
+		btnNewButton.setBounds(335, 475, 97, 23);
+		add(btnNewButton);
+		
+		controller = new MainPanelController(this);
+	}
+	
+	public JButton getJButton() {
+		return this.btnNewButton;
+	}
+}

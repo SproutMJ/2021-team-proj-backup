@@ -1,0 +1,11 @@
+package controller;
+
+import view.MainFrame;
+
+public class MainFrameController {
+
+	public MainFrameController(MainFrame mainFrame) {
+		
+	}
+	
+}

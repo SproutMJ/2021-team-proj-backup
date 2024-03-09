@@ -1,0 +1,8 @@
+package service;
+
+import java.io.File;
+
+public interface CompressionService {
+	public void compressFile(File saveFile, File originFile);
+	public void deCompressFile(File compressedFile, String decompressedFilePath);
+}

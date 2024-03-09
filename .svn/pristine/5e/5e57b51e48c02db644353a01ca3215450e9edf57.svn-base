@@ -1,0 +1,140 @@
+package view;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
+public class MainFrame extends JFrame {
+
+	private MainPanel mainPanel;
+	private OpnZipFilePanel opnZipFilePanel;
+	private JMenuBar menuBar;
+	private JMenu fileMenu;
+	private JMenuItem opnCompFile;
+	private JMenuItem fileClose;
+	private JMenuItem fileDelete;
+	private JMenuItem openNewWindow;
+	
+	public MainFrame() {
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 600);
+		
+		menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 800, 30);
+		this.add(menuBar);
+		
+		fileMenu = new JMenu("파일");
+		menuBar.add(fileMenu);
+		
+		opnCompFile = new JMenuItem("압축 파일 열기");
+		fileMenu.add(opnCompFile);
+		
+		fileClose = new JMenuItem("파일 닫기");
+		fileMenu.add(fileClose);
+				
+		fileDelete = new JMenuItem("파일 삭제");
+		fileMenu.add(fileDelete);
+		
+		openNewWindow = new JMenuItem("새 창 띄우기");
+		fileMenu.add(openNewWindow);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMEdit = new JMenu("편집");
+		menuBar.add(JMEdit);
+		
+		JMenuItem ChangeName = new JMenuItem("이름 바꾸기");
+		JMEdit.add(ChangeName);
+		
+		JMenuItem AddFile = new JMenuItem("파일 추가");
+		JMEdit.add(AddFile);
+		
+		JMenuItem DeleteFile = new JMenuItem("파일 삭제");
+		JMEdit.add(DeleteFile);
+		
+		JMenuItem EditFileExpl = new JMenuItem("압축 파일 설명 편집");
+		JMEdit.add(EditFileExpl);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMFind = new JMenu("찾기");
+		menuBar.add(JMFind);
+		
+		JMenuItem SearchFile = new JMenuItem("파일 찾기");
+		JMFind.add(SearchFile);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMSetting = new JMenu("설정");
+		menuBar.add(JMSetting);
+		
+		JMenuItem Setting = new JMenuItem("환경 설정");
+		JMSetting.add(Setting);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMView = new JMenu("보기");
+		menuBar.add(JMView);
+		
+		JMenu ViewFileList = new JMenu("파일 목록");
+		JMView.add(ViewFileList);
+		
+		JMenuItem ViewDetails = new JMenuItem("자세히");
+		ViewFileList.add(ViewDetails);
+		
+		JMenuItem ViewSimply = new JMenuItem("간단히");
+		ViewFileList.add(ViewSimply);
+		
+		JMenuItem ViewIcon = new JMenuItem("아이콘");
+		ViewFileList.add(ViewIcon);
+		
+		JMenuItem ViewBIcon = new JMenuItem("큰 아이콘");
+		ViewFileList.add(ViewBIcon);
+		
+		// -------------------------------------------------------------
+		
+		JMenu JMHelp = new JMenu("도움말");
+		menuBar.add(JMHelp);
+		
+		JMenuItem Info = new JMenuItem("정보");
+		JMHelp.add(Info);
+		
+		mainPanel = new MainPanel();
+		add(mainPanel);
+		
+		opnZipFilePanel = new OpnZipFilePanel();
+		add(opnZipFilePanel);
+	}
+
+	public MainPanel getMainPanel() {
+		return mainPanel;
+	}
+
+	public OpnZipFilePanel getOpnZipFilePanel() {
+		return opnZipFilePanel;
+	}
+
+	public JMenu getFileMenu() {
+		return fileMenu;
+	}
+
+	public JMenuItem getOpnCompFile() {
+		return opnCompFile;
+	}
+
+	public JMenuItem getFileClose() {
+		return fileClose;
+	}
+
+	public JMenuItem getFileDelete() {
+		return fileDelete;
+	}
+
+	public JMenuItem getOpenNewWindow() {
+		return openNewWindow;
+	}
+
+	
+}

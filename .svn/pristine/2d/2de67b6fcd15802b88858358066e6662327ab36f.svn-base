@@ -1,0 +1,22 @@
+package config;
+
+import controller.MainFrameController;
+import controller.MainPanelController;
+import controller.OpnZipFileController;
+import view.MainFrame;
+
+public class DependencyManager {
+
+	private static DependencyManager manager = new DependencyManager();
+	
+	private DependencyManager() {
+		MainFrame mainFrame = new MainFrame();
+		MainFrameController mainFrameController = new MainFrameController(mainFrame);
+		MainPanelController mainPanelController = new MainPanelController(mainFrame);
+		OpnZipFileController opnZilFileController = new OpnZipFileController(mainFrame);
+	}
+	
+	public static DependencyManager managerStart() {
+		return manager;
+	}
+}

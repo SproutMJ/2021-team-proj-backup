@@ -1,0 +1,7 @@
+package service;
+
+import java.io.File;
+
+public interface CompressionService {
+	File getCompressFile(File file);
+}

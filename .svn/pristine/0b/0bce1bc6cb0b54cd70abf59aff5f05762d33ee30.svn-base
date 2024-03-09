@@ -1,0 +1,22 @@
+package filestructure;
+
+import java.io.Serializable;
+
+public class MjFile implements Serializable{
+
+	public MjFileHeader getHeader() {
+		return header;
+	}
+
+	public MjFileBody getBody() {
+		return body;
+	}
+
+	private MjFileHeader header;
+	private MjFileBody body;
+	
+	public MjFile(MjFileHeader header, MjFileBody body) {
+		this.header = header;
+		this.body = body;
+	}
+}

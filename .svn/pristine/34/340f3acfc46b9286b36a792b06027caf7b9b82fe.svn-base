@@ -1,0 +1,23 @@
+package view;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+public class Frame extends JFrame {
+
+	private JPanel mainPanel;
+
+	public Frame() {
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 600);
+		mainPanel = new MainPanel();
+		mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		mainPanel.setLayout(null);
+		setContentPane(mainPanel);
+	}
+	// re commit for sync
+}

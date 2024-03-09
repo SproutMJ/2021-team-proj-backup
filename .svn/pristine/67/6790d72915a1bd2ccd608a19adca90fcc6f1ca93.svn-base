@@ -1,0 +1,84 @@
+package service;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.time.Duration;
+import java.time.Instant;
+
+import filestructure.MjFile;
+import filestructure.MjFileBody;
+import filestructure.MjFileHeader;
+import utility.HuffmanCompress;
+import utility.HuffmanEntity;
+
+public class CompressionServiceImpl implements CompressionService{
+
+	@Override
+	public void compressFile(File file) {
+		
+		Instant begin = Instant.now();
+		
+		long fileSize = file.length();
+		
+		//byte 크기만큼 buffer 선언
+		byte[] buffer = new byte[(int)file.length()];
+		
+		FileInputStream fis;
+		BufferedInputStream bis;
+		
+		try {
+			fis = new FileInputStream(file.getAbsoluteFile());
+			bis = new BufferedInputStream(fis);
+			bis.read(buffer);
+			bis.close();
+			fis.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		
+		System.out.println("파일 이름 : " + file.getName());
+		System.out.println("바이트 크기 : " + fileSize);
+		
+		HuffmanCompress hc = new HuffmanCompress();
+		HuffmanEntity entity = hc.compress(buffer);
+		String encodedCode = entity.getEncodedCode();
+		
+		byte[] compressedByte = new byte[encodedCode.length()/8];
+		int cnt = 0;
+		for(int i = 0; i < compressedByte.length; i++) {
+			compressedByte[i] = (byte) Integer.parseInt(encodedCode.substring(8*i, 8*i+8), 2);
+			cnt++;
+			System.out.println(cnt);
+		}
+		
+		System.out.println("압축된 바이트 크기 : " + compressedByte.length);
+		
+		MjFileHeader header = new MjFileHeader("새 압축.mj", file.getName(), (int) file.length(), (int) compressedByte.length, entity.getLastBinary(), entity.getDecodingMap());
+		MjFileBody body = new MjFileBody(compressedByte);
+		MjFile mjFile = new MjFile(header, body);
+		
+		FileOutputStream fos;
+		ObjectOutputStream oos;
+		
+		try {
+			fos = new FileOutputStream("CompressedTest.mj"); //저장 위치 입력받아야함
+			oos = new ObjectOutputStream(fos);
+			oos.writeObject(mjFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Instant end = Instant.now();
+		System.out.println(Duration.between(begin, end).toSeconds() + "초 걸림");
+	}
+	
+}

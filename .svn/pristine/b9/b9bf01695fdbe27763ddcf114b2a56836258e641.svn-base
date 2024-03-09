@@ -1,0 +1,11 @@
+package AlgorithmTest.Entity;
+
+import java.io.Serializable;
+import java.util.Hashtable;
+
+public class HuffmanCompress implements Serializable{
+	private Hashtable<Character, String> encodingMap;
+	private Hashtable<String, Character> decodingMap;
+	private String fileName;
+	private String encodedCode;
+}

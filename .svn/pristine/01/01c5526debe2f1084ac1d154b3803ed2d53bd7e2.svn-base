@@ -1,0 +1,97 @@
+package utility;
+
+import java.util.Hashtable;
+import java.util.PriorityQueue;
+
+import datastructure.Frequency;
+
+public class HuffmanCompress {
+
+	private Hashtable<Integer, String> encodingMap;
+	private Hashtable<String, Integer> decodingMap;
+	
+	public HuffmanCompress() {
+		this.encodingMap = new Hashtable<Integer, String>();
+		this.decodingMap = new Hashtable<String, Integer>();
+	}
+	
+	public HuffmanEntity compress(byte[] fileBinary) {
+		int freq[] = calculateFrequency(fileBinary);
+		
+		PriorityQueue<Frequency> pq = makeHeap();
+		initFrequency(freq, pq);
+		initTree(pq);
+		
+		Frequency root = pq.remove();
+		encodingBinary(root, "");
+
+		String encode = getEncodedCode(fileBinary);
+		int restBit = encode.length() % 8;
+		String lastBinary = encode.substring(encode.length()-restBit);
+		
+		return new HuffmanEntity(encodingMap, decodingMap, encode, lastBinary);
+	}
+	
+	private int[] calculateFrequency(byte[] fileBinary) {
+		
+		int freq[] = new int[256];
+		
+		for(int i = 0; i < fileBinary.length; i++) {
+			freq[fileBinary[i] + 128]++;
+		}
+		
+		return freq;
+	}
+	
+	private PriorityQueue<Frequency> makeHeap(){
+		return new PriorityQueue<Frequency>((a, b) -> {
+			if (a.getFrequency() < b.getFrequency())
+				return -1;
+			else if (a.getFrequency() == b.getFrequency())
+				return 0;
+			else
+				return 1;
+		});
+	}
+	
+	private void initFrequency(int[] freq, PriorityQueue<Frequency> pq) {
+		for(int i = 0; i < freq.length; i++) {
+			pq.add(new Frequency(i, freq[i]));
+		}
+	}
+	
+	private void initTree(PriorityQueue<Frequency> pq) {
+		while(pq.size() > 1) {
+			Frequency left = pq.remove();
+			Frequency right = pq.remove();
+			Frequency parent = new Frequency(left, right);
+			pq.add(parent);
+		}
+	}
+	
+	private void encodingBinary(Frequency freq, String code) {
+		if (freq.getOneByte() != null) {
+			encodingMap.put(freq.getOneByte(), code.toString());
+			decodingMap.put(code.toString(), freq.getOneByte());
+		}
+		
+		if (freq.getLeft() != null) {
+			encodingBinary(freq.getLeft(), code + "0");
+		}
+		if (freq.getRight() != null) {
+			encodingBinary(freq.getRight(), code + "1");
+		}
+	}
+	
+	private String getEncodedCode(byte[] fileBinary) {
+		StringBuilder builder = new StringBuilder();
+		int cnt = 0;
+		for(int i = 0; i < fileBinary.length; i++) {
+			builder.append(this.encodingMap.get(fileBinary[i] + 128));
+			cnt++;
+			System.out.println(cnt);
+		}
+		
+		return builder.toString();
+	}
+}

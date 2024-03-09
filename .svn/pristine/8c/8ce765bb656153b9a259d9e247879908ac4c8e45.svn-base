@@ -1,0 +1,64 @@
+package controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.JFileChooser;
+
+import service.CompressionService;
+import service.CompressionServiceImpl;
+import view.MainFrame;
+import view.OpnZipFilePanel;
+
+public class OpnZipFileController {
+
+	private OpnZipFilePanel zipFilePanel;
+	private CompressionService compressionService;
+	
+	public OpnZipFileController(MainFrame mainFrame) {
+		this.zipFilePanel = mainFrame.getOpnZipFilePanel();
+		this.compressionService = new CompressionServiceImpl();
+		eventInit();
+	}
+	
+	private void eventInit() {
+		
+		zipFilePanel.getBtnDecompress().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int response = fileChooser.showSaveDialog(null);
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					String decompressedfilePath = fileChooser.getSelectedFile().getAbsolutePath();
+					String compressedFilePath = (String)zipFilePanel.getTable().getModel().getValueAt(0, 3);
+					File compressedFile = new File(compressedFilePath);
+					compressionService.deCompressFile(compressedFile, decompressedfilePath);
+				}
+			}
+			
+		});
+		
+		zipFilePanel.getBtnNewCompress().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				int response = fileChooser.showSaveDialog(null);
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					File saveFile = new File(fileChooser.getSelectedFile().getAbsolutePath());
+					String originFilePath = (String)zipFilePanel.getTable().getModel().getValueAt(0, 2);
+					File originFile = new File(originFilePath);
+					
+					compressionService.compressFile(saveFile, originFile);
+				}
+				
+			}
+			
+		});
+	}
+}

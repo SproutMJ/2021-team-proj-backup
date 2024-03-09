@@ -1,0 +1,17 @@
+package AlgorithmTest;
+
+import AlgorithmTest.Entity.HuffmanEntity;
+
+public class Test {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		HuffmanCompress hc = new HuffmanCompress();
+		HuffmanEntity entity = hc.compress("fff.hwp", "01122233345555667777889AAAAAAAAABBCCCCDDFFFFFFFF");
+		System.out.println(entity);
+		for (byte b : HuffmanDecompress.decompress(entity)) {
+			System.out.print(b);
+		}
+	}
+
+}

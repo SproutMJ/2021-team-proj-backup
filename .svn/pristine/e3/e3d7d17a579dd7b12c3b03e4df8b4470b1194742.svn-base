@@ -1,0 +1,30 @@
+package controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import service.CompressionService;
+import service.CompressionServiceImpl;
+import view.MainPanel;
+
+public class MainPanelController {
+
+	private MainPanel mainPanel;
+	private CompressionService compressionService;
+	
+	public MainPanelController(MainPanel mainPanel) {
+		this.mainPanel = mainPanel;
+		this.compressionService = new CompressionServiceImpl();
+		eventinit();
+	}
+	
+	private void eventinit() {
+		mainPanel.getJButton().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//compressionService
+				System.out.println("이벤트동작 확인");
+			}
+		});
+	}
+}

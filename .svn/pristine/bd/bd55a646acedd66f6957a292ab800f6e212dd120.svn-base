@@ -1,0 +1,31 @@
+package controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import service.CompressionService;
+import service.CompressionServiceImpl;
+import view.MainPanel;
+
+public class MainPanelController {
+
+	private MainPanel mainPanel;
+	private CompressionService compressionService;
+	
+	public MainPanelController(MainPanel mainPanel) {
+		this.mainPanel = mainPanel;
+		this.compressionService = new CompressionServiceImpl();
+		eventinit();
+	}
+	
+	private void eventinit() {
+		mainPanel.getJButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//File file = new File("");
+				//compressionService.getCompressFile(file);
+				System.out.println("이벤트동작 확인");
+			}
+		});
+	}
+}

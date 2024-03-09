@@ -1,0 +1,21 @@
+package service;
+
+import java.io.File;
+import java.io.IOException;
+
+public class ProcessServiceImpl implements ProcessService{
+
+	@Override
+	public void openNewWindow() {
+		ProcessBuilder builder = new ProcessBuilder("java", "-jar", "mzip.jar");
+		builder.directory(new File(getClass().getResource("/").getPath()));
+		builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+		builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+		try {
+			builder.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}

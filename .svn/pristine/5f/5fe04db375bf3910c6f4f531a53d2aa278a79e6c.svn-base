@@ -1,0 +1,33 @@
+package filestructure;
+
+import java.io.Serializable;
+
+public class MjFileHeader implements Serializable{
+	private String fileName; // 저장할 파일 이름
+	private String originName; // 원래 파일 이름
+	private int fileSize; // 파일 사이즈
+	private int bitLength; // 인코딩한 가변비트 길이;
+	
+	public MjFileHeader(String fileName, String originName, int fileSize, int bitLength) {
+		this.fileName = fileName;
+		this.originName = originName;
+		this.fileSize = fileSize;
+		this.bitLength = bitLength;
+	}
+	
+	public String getFileName() {
+		return fileName;
+	}
+
+	public String getOriginName() {
+		return originName;
+	}
+
+	public int getFileSize() {
+		return fileSize;
+	}
+
+	public int getBitLength() {
+		return bitLength;
+	}
+}

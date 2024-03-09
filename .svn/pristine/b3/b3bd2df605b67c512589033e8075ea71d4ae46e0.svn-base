@@ -1,0 +1,43 @@
+package datastructure;
+
+public class Frequency {
+	private Integer oneByte;
+	private int frequency;
+	private Frequency left;
+	private Frequency right;
+
+	public Frequency(int oneByte, int frequency) {
+		this.oneByte = oneByte;
+		this.frequency = frequency;
+		this.left = null;
+		this.right = null;
+	}
+
+	@Override
+	public String toString() {
+		return "Frequency [oneByte=" + oneByte + ", frequency=" + frequency + ", left=" + left + ", right=" + right + "]";
+	}
+
+	public Frequency(Frequency left, Frequency right) {
+		this.oneByte = null;
+		this.frequency = left.getFrequency() + right.getFrequency();
+		this.left = left;
+		this.right = right;
+	}
+
+	public Integer getOneByte() {
+		return oneByte;
+	}
+
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public Frequency getLeft() {
+		return left;
+	}
+
+	public Frequency getRight() {
+		return right;
+	}
+}

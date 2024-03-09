@@ -1,0 +1,34 @@
+package AlgorithmTest.function;
+
+import java.util.Hashtable;
+
+import AlgorithmTest.Entity.Frequency;
+import AlgorithmTest.Entity.MapForCompress;
+
+public class PreorderTraversal {
+
+	private Hashtable<Character, String> encodingMap;
+	private Hashtable<String, Character> decodingMap;
+
+	public PreorderTraversal() {
+		this.encodingMap = new Hashtable<>();
+		this.decodingMap = new Hashtable<>();
+	}
+
+	public MapForCompress preorderTraversal(Frequency freq, String code) {
+		if (freq.getCh() != null) {
+			System.out.println(freq.getCh() + " " + code);
+			encodingMap.put(freq.getCh(), code.toString());
+			decodingMap.put(code.toString(), freq.getCh());
+		}
+
+		if (freq.getLeft() != null) {
+			preorderTraversal(freq.getLeft(), code + "0");
+		}
+		if (freq.getRight() != null) {
+			preorderTraversal(freq.getRight(), code + "1");
+		}
+		
+		return new MapForCompress(encodingMap, decodingMap);
+	}
+}

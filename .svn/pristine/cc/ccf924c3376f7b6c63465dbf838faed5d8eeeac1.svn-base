@@ -1,0 +1,31 @@
+package utility;
+
+import java.util.Hashtable;
+
+public class HuffmanEntity {
+	private Hashtable<Integer, String> encodingMap;
+	private Hashtable<String, Integer> decodingMap;
+	private String encodedCode;
+	private String lastBinary;
+	
+	public HuffmanEntity(Hashtable<Integer, String> encodingMap, Hashtable<String, Integer> decodingMap,
+			String encodedCode, String lastBinary) {
+		this.encodingMap = encodingMap;
+		this.decodingMap = decodingMap;
+		this.encodedCode = encodedCode;
+		this.lastBinary = lastBinary;
+	}
+	
+	public Hashtable<Integer, String> getEncodingMap() {
+		return encodingMap;
+	}
+	public Hashtable<String, Integer> getDecodingMap() {
+		return decodingMap;
+	}
+	public String getEncodedCode() {
+		return encodedCode;
+	}
+	public String getLastBinary() {
+		return lastBinary;
+	}
+}

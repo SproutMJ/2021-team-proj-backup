@@ -1,0 +1,12 @@
+package AlgorithmTest.Entity;
+
+import java.io.Serializable;
+import java.util.Hashtable;
+
+//이진 쓰기할 때 사용하기 위한 객체(허프만 알고리즘에서는 사용되지 않음)
+public class HuffmanCompress implements Serializable {
+	private Hashtable<Character, String> encodingMap;
+	private Hashtable<String, Character> decodingMap;
+	private String fileName;
+	private String encodedCode;
+}

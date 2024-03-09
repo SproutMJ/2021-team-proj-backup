@@ -1,0 +1,44 @@
+package datastructure;
+
+public class HuffNode {
+	char symbol;
+	int freq;
+	HuffNode left;
+	HuffNode right;
+	
+	public HuffNode(char symbol, int freq) {
+		this.symbol = symbol;
+		this.freq = freq;
+		this.left = null;
+		this.right = null;
+	}
+	
+	public void preorder() {
+		System.out.printf("%d ", freq);
+		if(this.left != null)
+			this.left.preorder();
+		if(this.right != null)
+			this.right.preorder();
+	}
+	
+	public void inorder() {
+		if(this.left != null)
+			this.left.inorder();
+		System.out.printf("%d ", freq);
+		if(this.right != null)
+			this.right.inorder();
+	}
+	
+	public static HuffNode huffman(int n, MinHeap<HuffNode> pq) {
+		for(int i = 0; i < n-1; i++) {
+			HuffNode p = pq.remove();
+			HuffNode q = pq.remove();
+			HuffNode r = new HuffNode(' ', p.freq+q.freq);
+			r.left = p;
+			r.right = q;
+			pq.add(r);
+		}
+		
+		return pq.peek();
+	}
+}

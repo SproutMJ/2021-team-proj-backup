@@ -1,0 +1,27 @@
+package Binary;
+
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+public class BinaryExam {
+
+	 public static void main(String[] args) throws IOException {
+
+	        String stringToConvert ="..//TeamProj//src//test//java//Binary//abc.txt";
+	        DataInputStream in = new DataInputStream(new FileInputStream(stringToConvert));
+	        byte[] b = new byte[1024];
+	        int len; // 실제로 읽어온 길이 (바이트 개수)
+	        StringBuilder stringBuilder = new StringBuilder();	//2진수 변환
+	        while ((len = in.read(b)) > 0) {
+	            for (int i = 0; i < len; i++) { // byte[] 버퍼 내용 출력
+	            	stringBuilder.append(((0x80 >>> i) & b[i]) == 0 ? '0' : '1');
+	            }
+	        }
+	        String result = stringBuilder.toString();
+	        System.out.println(result);  
+	    }
+
+	  
+}

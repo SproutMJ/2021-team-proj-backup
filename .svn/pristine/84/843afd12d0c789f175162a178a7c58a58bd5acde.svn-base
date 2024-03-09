@@ -1,0 +1,31 @@
+package Binary;
+
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+public class BinaryExam {
+
+	 public static void main(String[] args) throws IOException {
+
+		 	String filename = "..//TeamProj//src//test//java//Binary//123.hwp";
+		    byte[] b = new byte[1024];
+		    int len; // 실제로 읽어온 길이 (바이트 개수)
+		    StringBuilder s = new StringBuilder();
+		    DataInputStream in = new DataInputStream(new FileInputStream(filename));
+
+		    while ((len = in.read(b)) > 0) {
+		      for (int i = 0; i < len; i++) { // byte[] 버퍼 내용 출력
+//		        System.out.format("%02X ", b[i]);
+		        s.append(String.format("%02X ", b[i]));
+		      }
+		    }
+		    System.out.println(s);
+		    in.close();
+
+		    System.out.println(); // 줄 바꾸고 종료
+	    }
+
+//	 	String sHex = String.format("%02x",정수) //또는 String.format("%02X",정수)
+}

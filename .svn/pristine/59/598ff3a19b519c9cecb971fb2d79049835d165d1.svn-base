@@ -1,0 +1,79 @@
+package controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.JFileChooser;
+import javax.swing.table.DefaultTableModel;
+
+import filestructure.MjFile;
+import service.CompressionService;
+import service.CompressionServiceImpl;
+import service.FileProcessingService;
+import service.FileProcessingServiceImpl;
+import view.MainFrame;
+import view.MainPanel;
+import view.OpnZipFilePanel;
+
+public class MainPanelController {
+
+	private MainPanel mainPanel;
+	private OpnZipFilePanel zipFilePanel;
+	private CompressionService compressionService;
+	private FileProcessingService fileProcessingService;
+
+	
+	public MainPanelController(MainFrame mainFrame) {
+		this.mainPanel = mainFrame.getMainPanel();
+		this.zipFilePanel = mainFrame.getOpnZipFilePanel();
+		compressionService = new CompressionServiceImpl();
+		fileProcessingService = new FileProcessingServiceImpl();
+		eventinit();
+	}
+	
+	private void eventinit() {
+		
+		//압축 파일 열기
+		mainPanel.getbuttonOpenFile().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				int response = chooser.showOpenDialog(null); // 파일 열기 성공하면 0 실패하면 1 반환
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					File file = new File(chooser.getSelectedFile().getAbsolutePath());
+					mainPanel.setVisible(false);
+					
+					MjFile mjFile = fileProcessingService.getMjFileData(file);
+					
+					zipFilePanel.getRoot().setUserObject(file.getName()); // TreeView 파일 이름 세팅
+					String fileSize = Integer.toString(mjFile.getHeader().getFileSize());
+					int compressedFileSize = mjFile.getHeader().getCompressedFileSize();
+					
+					String headings[] = new String[] {"파일명", "원본 크기", "압축 크기"};
+					String data[][] = new String[][] {
+						{file.getName(), fileSize, Integer.toString(compressedFileSize)}
+					};
+					
+					DefaultTableModel dtm = new DefaultTableModel(data, headings); // FileView 데이터 세팅
+					zipFilePanel.getTable().setModel(dtm);
+					zipFilePanel.setVisible(true);
+				}
+			}
+		});
+		
+		//새로 압축하기
+		mainPanel.getbuttonNewCompress().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				int response = chooser.showOpenDialog(null); // 파일 열기 성공하면 0 실패하면 1 반환
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					File file = new File(chooser.getSelectedFile().getAbsolutePath());
+					compressionService.compressFile(file);
+				}
+			}
+		});
+				
+	}
+}

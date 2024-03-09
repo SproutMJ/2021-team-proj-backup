@@ -1,0 +1,78 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import controller.MainPanelController;
+import javax.swing.JLabel;
+
+public class MainPanel extends JPanel {
+	
+	private JButton Btn_FileOpn;
+	private JButton Btn_FileSolve;
+	private JButton Btn_NewComp;
+	private JButton Btn_AddFile;
+	private JButton Btn_DeleteFile;
+	private JPanel BtnPanel;
+	private JPanel DirectoryPanel;
+	private JPanel FilePanel;
+
+	public OpnZipFilePanel() {
+			
+			setBorder(new EmptyBorder(5, 5, 5, 5));
+			setLayout(null);
+			
+			setBounds(0, 0, 800, 600);
+			setBackground(Color.GRAY);
+			setLayout(null);
+			
+			Btn_FileOpn = new JButton("");
+			Btn_FileOpn.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_FileOpen.png"));
+			Btn_FileOpn.setBounds(0, 0, 73, 80);
+			add(Btn_FileOpn);
+			
+			Btn_FileSolve = new JButton("");
+			Btn_FileSolve.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_FileSolve.png"));
+			Btn_FileSolve.setBounds(73, 0, 73, 80);
+			add(Btn_FileSolve);
+			
+			Btn_NewComp = new JButton("");
+			Btn_NewComp.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_NewComp.png"));
+			Btn_NewComp.setBounds(146, 0, 73, 80);
+			add(Btn_NewComp);
+			
+			Btn_AddFile = new JButton("");
+			Btn_AddFile.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_AddFile.png"));
+			Btn_AddFile.setBounds(219, 0, 73, 80);
+			add(Btn_AddFile);
+			
+			Btn_DeleteFile = new JButton("");
+			Btn_DeleteFile.setIcon(new ImageIcon("..//TeamProj//src//main//resources//Image//Btn_DeleteFile.png"));
+			Btn_DeleteFile.setBounds(292, 0, 73, 80);
+			add(Btn_DeleteFile);
+			
+			
+			// BtnPanel just for design
+			BtnPanel = new JPanel();
+			BtnPanel.setBackground(Color.WHITE);
+			BtnPanel.setBounds(0, 0, 800, 80);
+			add(BtnPanel);
+			
+			// File's Explorer
+			DirectoryPanel = new JPanel();
+			DirectoryPanel.setBackground(Color.WHITE);
+			DirectoryPanel.setBounds(0, 81, 187, 519);
+			add(DirectoryPanel);
+			
+			// FilePanel will havs what file get
+			FilePanel = new JPanel();
+			FilePanel.setBackground(Color.WHITE);
+			FilePanel.setBounds(193, 81, 607, 519);
+			add(FilePanel);
+		}
+}

@@ -1,0 +1,78 @@
+package AlgorithmTest;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class LZ77Test {
+	public static void main(String[] args) {
+		List a = new ArrayList<>();
+		for(char t : "aohlbohlcohl".toCharArray())
+			a.add(t);
+		
+		List<Tuple> list = lz77Encoding(a, (byte)6, (byte)4);
+		for(Tuple t :list)
+			System.out.println(t);
+	}
+
+	/*제네릭으로 만들어 본 lz77Encoding메서드
+	 * 원본 리스트, searchBuf, lookaheadBuf를 바탕으로 lz77인코딩을 시도한다.
+	 * 
+	 */
+	
+	public static <T> List<Tuple> lz77Encoding(List<T> origin, byte searchBufSize, byte lookaheadBufSize) {
+		List<Tuple> list = new LinkedList<>();
+		int position = 0;
+		//System.out.println(origin.size());
+		while (position < origin.size()) {
+			int index;
+			boolean flag = false;
+			for (index = ((position - searchBufSize < 0) ? 0
+					: position - searchBufSize); index < ((position - 1 < 0) ? 0 : position - 1); index++) {
+				if (origin.get(index).equals(origin.get(position))) {
+					flag = true;
+					break;
+				}
+			}
+			byte length = 0;
+			if(flag) {
+				for (int i = 0; index + i <= position && i < lookaheadBufSize && position + length < origin.size() - 1; i++) {
+					System.out.print(origin.get(index + i));
+					System.out.print(origin.get(position + i));
+					System.out.println();
+					if (origin.get(index + i).equals(origin.get(position + i))) {
+						length++;
+					} else {
+						break;
+					}
+				}
+			}
+			list.add(new Tuple<T>((byte) (position - index), length, origin.get(position + length)));
+			System.out.println(list.get(list.size() - 1));
+			position += (length + 1);
+		}
+
+		return list;
+
+	}
+
+}
+
+class Tuple<T> {
+	public byte index;
+	public byte length;
+	public T literal;
+
+	public Tuple(byte index, byte length, T literal) {
+		this.index = index;
+		this.length = length;
+		this.literal = literal;
+	}
+
+	@Override
+	public String toString() {
+		return "Tuple [index=" + index + ", length=" + length + ", literal=" + literal + "]";
+	}
+	
+	
+}

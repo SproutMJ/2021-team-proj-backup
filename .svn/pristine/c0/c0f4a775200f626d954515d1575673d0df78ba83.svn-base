@@ -1,0 +1,19 @@
+package AlgorithmTest.Entity;
+
+public class Frequency{
+	private char ch;
+	private int frequency;
+	
+	public Frequency(char ch, int frequency) {
+		this.ch = ch;
+		this.frequency = frequency;
+	}
+
+	public char getCh() {
+		return ch;
+	}
+
+	public int getFrequency() {
+		return frequency;
+	}
+}

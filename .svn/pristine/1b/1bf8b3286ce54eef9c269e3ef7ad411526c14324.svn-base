@@ -1,0 +1,156 @@
+package controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
+
+import filestructure.MjFile;
+import service.CompressionService;
+import service.CompressionServiceImpl;
+import service.FileProcessingService;
+import service.FileProcessingServiceImpl;
+import view.MainFrame;
+import view.MainPanel;
+import view.OpnZipFilePanel;
+import view.ProgressBarPopup;
+
+public class OpnZipFileController {
+
+	private OpnZipFilePanel zipFilePanel;
+	private MainPanel mainPanel;
+	private ProgressBarPopup popup;
+	private CompressionService compressionService;
+	private FileProcessingService fileProcessingService;
+	
+	public OpnZipFileController(MainFrame mainFrame) {
+		this.zipFilePanel = mainFrame.getOpnZipFilePanel();
+		this.mainPanel = mainFrame.getMainPanel();
+		this.popup = mainFrame.getProgressBarPopup();
+		this.compressionService = new CompressionServiceImpl();
+		this.fileProcessingService = new FileProcessingServiceImpl();
+		eventInit();
+	}
+	
+	private void eventInit() {
+		
+		//압축 해제 버튼
+		zipFilePanel.getBtnDecompress().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				int columnCount = zipFilePanel.getTable().getColumnCount();
+				if(columnCount != 4) {
+					JOptionPane.showMessageDialog(null, "해당 파일은 압축 파일이 아닙니다.");
+					return;
+				}
+				
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int response = fileChooser.showSaveDialog(null);
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					String decompressedfilePath = fileChooser.getSelectedFile().getAbsolutePath();
+					String compressedFilePath = (String)zipFilePanel.getTable().getModel().getValueAt(0, 3);
+					File compressedFile = new File(compressedFilePath);
+					
+					final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>(){
+
+						@Override
+						protected Void doInBackground() throws Exception {
+							
+							popup.setVisible(true);
+							compressionService.deCompressFile(compressedFile, decompressedfilePath, popup.getProgressBar());
+							popup.setVisible(false);
+							JOptionPane.showMessageDialog(null, "압축해제가 완료되었습니다.");
+							return null;
+						}
+					};
+					worker.execute();
+				}
+			}
+			
+		});
+		
+		//새로 압축 버튼
+		zipFilePanel.getBtnNewCompress().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				int response = fileChooser.showSaveDialog(null);
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					
+					File saveFile = new File(fileChooser.getSelectedFile().getAbsolutePath());
+					String originFilePath = (String)zipFilePanel.getTable().getModel().getValueAt(0, 2);
+					File originFile = new File(originFilePath);
+					
+					
+					final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>(){
+
+						@Override
+						protected Void doInBackground() throws Exception {
+							
+							popup.setVisible(true);
+							compressionService.compressFile(saveFile, originFile, popup.getProgressBar());
+							popup.setVisible(false);
+							JOptionPane.showMessageDialog(null, "압축이 완료되었습니다.");
+							
+							return null;
+						}
+						
+					};
+					worker.execute();
+					
+				}
+				
+			}
+			
+		});
+		
+		//파일 열기 버튼
+		zipFilePanel.getBtnFileOpn().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				int response = chooser.showOpenDialog(null);
+				
+				if(response == JFileChooser.APPROVE_OPTION) {
+					File file = new File(chooser.getSelectedFile().getAbsolutePath());
+					String fileName = file.getName();
+					String extension = fileName.substring(fileName.lastIndexOf(".")+1);
+					
+					
+					if(extension.equals("mj")) {
+						mainPanel.setVisible(false);					
+						MjFile mjFile = fileProcessingService.getMjFileData(file);
+						
+						zipFilePanel.getRoot().setUserObject(file.getName()); // TreeView 파일 이름 세팅
+						String fileSize = Integer.toString(mjFile.getHeader().getFileSize());
+						int compressedFileSize = mjFile.getHeader().getCompressedFileSize();
+						
+						String headings[] = new String[] {"파일명", "원본 크기", "압축 크기", "파일 위치"};
+						String data[][] = new String[][] {
+							{file.getName(), fileSize, Integer.toString(compressedFileSize), file.getAbsolutePath()}
+						};
+						
+						DefaultTableModel dtm = new DefaultTableModel(data, headings); // FileView 데이터 세팅
+						zipFilePanel.getTable().setModel(dtm);
+						zipFilePanel.setVisible(true);
+					}else {
+						JOptionPane.showMessageDialog(null, "확장자가 mj인 파일을 선택해 주세요");
+					}
+					
+				}
+			}
+			
+		});
+	}
+}

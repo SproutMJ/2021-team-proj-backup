@@ -1,0 +1,292 @@
+package AlgorithmTest;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+
+public class LZ77Test {
+	public static void main(String[] args) {
+		/*
+		 * 예제 1 List<Byte> a = new LinkedList<>(); a.add((byte) 97); a.add((byte) 111);
+		 * a.add((byte) 104); a.add((byte) 108);
+		 * 
+		 * a.add((byte) 98); a.add((byte) 111); a.add((byte) 104); a.add((byte) 108);
+		 * 
+		 * a.add((byte) 99); a.add((byte) 111); a.add((byte) 104); a.add((byte) 108);
+		 * 
+		 * List<Tuple> tuples = lz77Encoding(a, (byte) 100, (byte) 100); for (Tuple t :
+		 * tuples) System.out.println(t);
+		 */
+
+		/*
+		 * 예제 2 // i가 1억 이상에서 메모리 에러뜸
+		 */
+//		int i = 0;
+//		try {
+//			List<Byte> a = new LinkedList<>();
+//			Random rand = new Random();
+//			for (; i < 500000; i++) {
+//				a.add((byte) rand.nextInt(255));
+//			}
+//			Instant begin = Instant.now();
+//			List<Tuple> tuples = lz77Encoding(a, 64000, 64000);
+//			Instant end = Instant.now();
+//			Duration between = Duration.between(begin, end);
+//
+//			//for (Tuple t : tuples) System.out.println(t);
+//			System.out.println(between.toSeconds() + "초 " + i + "=>" + tuples.size() + "="
+//					+ (double) tuples.size() / (double) i * 100.0 + "%");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+
+		/*
+		 * //반례1 //2단계에서 || lookaheadBuffer.size() == 1를 제거하면 IndexOutOfBoundsException이
+		 * 발생한다. //이유: lookaheadBuffer에 원소가 하나남은 상태에서 searchBuffer에 동일한 원소가 있을 때, 기존에는
+		 * (index, 1 해당원소)로 처리해버려 lookaheadBuffer에 남는게 없어짐 List<Byte> a = new
+		 * LinkedList<>(); a.add((byte) 99); a.add((byte) 111); a.add((byte) 104);
+		 * a.add((byte) 104);
+		 * 
+		 * List<Tuple> tuples = lz77Encoding(a, (byte) 3, (byte) 3); for (Tuple t :
+		 * tuples) System.out.println(t);
+		 */
+
+		JFrame frame = new JFrame();
+		JFileChooser fileChooser = new JFileChooser();
+		if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+<<<<<<< .mine
+			try (BufferedInputStream reader = new BufferedInputStream(
+					new FileInputStream(fileChooser.getSelectedFile().getPath())); 
+					ObjectOutputStream writer = new ObjectOutputStream(
+							new FileOutputStream("C:\\Users\\mjk49\\Desktop\\test2.dat"))) {
+||||||| .r74
+=======
+			try (BufferedInputStream reader = new BufferedInputStream(new FileInputStream(fileChooser.getSelectedFile().getPath()));
+					ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream("압축 위치"))) {
+>>>>>>> .r75
+				byte[] arr = new byte[1024];
+				List<Byte> list = new LinkedList<>();
+				while (true) {
+					int len;
+					if ((len = reader.read(arr)) == -1)
+						break;
+					for (int i = 0; i < len; i++)
+						list.add(arr[i]);
+				}
+
+				int listSize = list.size();
+				Instant begin = Instant.now();
+<<<<<<< .mine
+				List<Tuple> tuples = lz77Encode(list, 500, 500);
+||||||| .r74
+=======
+				System.out.println(listSize);
+				List<Tuple> tuples = lz77Encode(list, 4000, 4000);
+>>>>>>> .r75
+				Instant end = Instant.now();
+				Duration between = Duration.between(begin, end);
+<<<<<<< .mine
+				System.out.println(between.toSeconds() + "초");
+				
+||||||| .r74
+=======
+
+>>>>>>> .r75
+				System.out.println(listSize + " -> " + tuples.size() + "결과: "
+						+ (double) tuples.size() / (double) listSize * 100.0);
+//				for(Tuple t: tuples)
+//					System.out.println(t);
+
+				for (Tuple t : tuples)
+					writer.writeObject(t);
+				writer.writeObject(null);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	/*
+	 * 바이트 리스트를 매개변수로 받는 LZ77 2번째버전이다. (다 사용한
+	 * 바이트들)....[searchBuffer][lookaheadBuffer][origin]으로 작동한다. origin에서
+	 * lookaheadBuffer로 급여하는 1단계, searchBuffer에서 lookaheadBuffer의 처음 부분과 일치하는 부분이
+	 * 있는지 탐색하고 tuple 리스트에 삽입하는 2단계, searchBuffer에서 넘치는 부분을 자르는 3단계로 이루어져 있다.
+	 */
+	public static List<Tuple> lz77Encode(List<Byte> origin, int searchBufSize, int lookaheadBufSize) {
+		List<Tuple> tuples = new LinkedList<>();
+		List<Byte> searchBuffer = new ArrayList<>(searchBufSize);
+		List<Byte> lookaheadBuffer = new LinkedList<>();
+		int size = 0;
+		int num = 0;
+
+		while (true) {
+
+			// 1단계
+<<<<<<< .mine
+||||||| .r74
+=======
+
+>>>>>>> .r75
+			while (lookaheadBuffer.size() < lookaheadBufSize) {
+				if (origin.size() == 0) {
+					break;
+				}
+				lookaheadBuffer.add(origin.get(0));
+				origin.remove(0);
+			}
+			//System.out.println(origin.size());
+			if (origin.size() == 0 && lookaheadBuffer.size() == 0) {
+				break;
+			}
+
+			// 2단계
+			int length = 0;
+			//lookAheadBuffer Size가 1인경우(마지막 Byte만 남은경우) or lookAheadBuffer의 길이 1 prefix를 찾지못한 경우 0,0,byte 형식의 튜플을 만들어 추가함
+			if (searchBuffer.indexOf(lookaheadBuffer.get(0)) == -1 || lookaheadBuffer.size() == 1) {
+				tuples.add(new Tuple(lookaheadBuffer.get(0)));
+			} else {
+				int distance = 0;
+				//n^2 브루트포스
+				for (int index = 0; index < searchBuffer.size(); index++) {
+					if (searchBuffer.get(index) == lookaheadBuffer.get(0)) {
+						int tempLength = 1;
+						int tempDistance = searchBuffer.size() - index;
+						for (int i = 1; i + index < searchBuffer.size() && i < lookaheadBuffer.size() - 1; i++) {
+							if (searchBuffer.get(i + index) == lookaheadBuffer.get(i)) {
+								tempLength++;
+							} else {
+								break;
+							}
+						}
+						if (length < tempLength) {
+							length = tempLength;
+							distance = tempDistance;
+						} else if (length == tempLength && distance > tempDistance) {
+							distance = tempDistance;
+						}
+					}
+				}
+				
+				//n+m KMP
+				
+//				//맨 앞만 찾는 버전
+//				int index = searchBuffer.indexOf(lookaheadBuffer.get(0));
+//				distance = searchBuffer.size() - index;
+//				for (int i = 1; i + index < searchBuffer.size() && i < lookaheadBuffer.size() - 1; i++) {
+//					if (searchBuffer.get(index + i) == lookaheadBuffer.get(i)) {
+//						length++;
+//					} else {
+//						break;
+//					}
+//				}
+
+				
+				
+				if (length <= 3) {
+					tuples.add(new Tuple(lookaheadBuffer.get(0)));
+					length = 0;
+				} else {
+					if (length <= 255) {
+						if (distance <= 255) {
+							tuples.add(
+									new CompressedTuple(lookaheadBuffer.get(length), (byte) length, (byte) distance));
+						} else if (distance <= 65535) {
+							tuples.add(
+									new CompressedTuple(lookaheadBuffer.get(length), (byte) length, (short) distance));
+						} else if (distance <= 4294967295L) {
+							tuples.add(new CompressedTuple(lookaheadBuffer.get(length), (byte) length, (int) distance));
+						}
+					} else if (length <= 65535) {
+						if (distance <= 255) {
+							tuples.add(
+									new CompressedTuple(lookaheadBuffer.get(length), (short) length, (byte) distance));
+						} else if (distance <= 65535) {
+							tuples.add(
+									new CompressedTuple(lookaheadBuffer.get(length), (short) length, (short) distance));
+						} else if (distance <= 4294967295L) {
+							tuples.add(
+									new CompressedTuple(lookaheadBuffer.get(length), (short) length, (int) distance));
+						}
+
+					} else if (length <= 4294967295L) {
+						if (distance <= 255) {
+							tuples.add(new CompressedTuple(lookaheadBuffer.get(length), (int) length, (byte) distance));
+						} else if (distance <= 65535) {
+							tuples.add(
+									new CompressedTuple(lookaheadBuffer.get(length), (int) length, (short) distance));
+						} else if (distance <= 4294967295L) {
+							tuples.add(new CompressedTuple(lookaheadBuffer.get(length), (int) length, (int) distance));
+						}
+					}
+				}
+			}
+			for (int i = 0; i < length + 1; i++) {
+				searchBuffer.add(lookaheadBuffer.get(0));
+				lookaheadBuffer.remove(0);
+			}
+			num++; //
+			// 3단계
+			while (searchBuffer.size() > searchBufSize) {
+				searchBuffer.remove(0);
+			}
+		}
+
+		//System.out.println(size); //
+
+		return tuples;
+
+	}
+
+}
+
+class Tuple implements Serializable {
+	public byte literal;
+	private static final long serialVersionUID = 5131748345535597927L;
+
+	public Tuple() throws Exception {
+		throw new Exception("잘못된 접근");
+	}
+
+	public Tuple(byte literal) {
+		this.literal = literal;
+	}
+
+	@Override
+	public String toString() {
+		return "Tuple [index= 0, length= 0, literal=" + literal + "]";
+	}
+}
+
+class CompressedTuple<L extends Number, T extends Number> extends Tuple {
+	public T distance;
+	public L length;
+	private static final long serialVersionUID = 2022027546323154876L;
+
+	public CompressedTuple() throws Exception {
+		throw new Exception("잘못된 접근");
+	}
+
+	public CompressedTuple(byte literal, L length, T distance) {
+		super(literal);
+		this.length = length;
+		this.distance = distance;
+	}
+
+	@Override
+	public String toString() {
+		return "Tuple [index=" + distance + ", length=" + length + ", literal=" + literal + "]";
+	}
+}

@@ -1,0 +1,23 @@
+package AlgorithmTest.Entity;
+
+import java.util.Hashtable;
+
+//인코딩용 해쉬테이블과 디코딩용 해쉬테이블을 한꺼번에 저장하기 위한 객체
+public class MapForCompress {
+	private Hashtable<Character, String> encodingMap;
+	private Hashtable<String, Character> decodingMap;
+
+	public MapForCompress(Hashtable<Character, String> encodingMap, Hashtable<String, Character> decodingMap) {
+		this.encodingMap = encodingMap;
+		this.decodingMap = decodingMap;
+	}
+
+	public Hashtable<Character, String> getEncodingMap() {
+		return encodingMap;
+	}
+
+	public Hashtable<String, Character> getDecodingMap() {
+		return decodingMap;
+	}
+
+}
