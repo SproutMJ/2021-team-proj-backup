@@ -14,12 +14,10 @@ public class HuffmanCompress {
 	// 디코딩을 위한 맵 정보 저장
 	private Hashtable<String, Integer> decodingMap;
 	// 진행상황을 progressbar에 업데이트 해주기위해 progressbar을 전달받아 처리한다.
-	private JProgressBar progressbar;
-	
-	public HuffmanCompress(JProgressBar progressbar) {
+
+	public HuffmanCompress() {
 		this.encodingMap = new Hashtable<Integer, String>();
 		this.decodingMap = new Hashtable<String, Integer>();
-		this.progressbar = progressbar;
 	}
 	
 	//파일 입출력으로 획득한 바이너리를 받아 압축을 실행한다 빈도수 계산 -> minHeap을 사용한 트리 생성 -> 트리를 통해 인코딩 맵 생성 -> 인코딩 맵을 통해 -> 압축 -> 압축된 데이터 반환 순으로 진행된다
@@ -106,7 +104,6 @@ public class HuffmanCompress {
 			
 			if(i % percent == 0) {
 				cnt++;
-				progressbar.setValue(cnt);
 			}
 		}
 		

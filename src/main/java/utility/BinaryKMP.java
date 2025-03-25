@@ -12,17 +12,19 @@ public class BinaryKMP {
 			while (k > 0 && origin.get(i) != pattern.get(k)) {
 				k = table[k - 1];
 			}
-			if (origin.get(i) == pattern.get(k)) {
-				if (k == pattern.size() - 1) {
-					//System.out.printf("%d번째에서 찾았습니다.\n", i-pattern.size() + 1);
-					offset = origin.size() - (i - pattern.size() + 1);
-					//System.out.printf("오프셋은 %d 입니다.\n", offset);
-					k = table[k];
-					return true;
-				} else {
-					k++;
+				if (origin.get(i) == pattern.get(k)) {
+					if (k == pattern.size() - 1) {
+						//System.out.printf("%d번째에서 찾았습니다.\n", i-pattern.size() + 1);
+						offset = origin.size() - (i - pattern.size() + 1);
+						//System.out.printf("오프셋은 %d 입니다.\n", offset);
+						k = table[k];
+						return true;
+					} else {
+						k++;
+					}
 				}
-			}
+
+
 		}
 		return false;
 	}
