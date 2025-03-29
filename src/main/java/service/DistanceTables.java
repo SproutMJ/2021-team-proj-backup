@@ -1,7 +1,7 @@
 package service;
 
-public final class OffsetTables {
-    public static final int[][] DISTANCE_CODE = {
+public final class DistanceTables {
+    public static final int[][] CODE_EQUAL_BASE_CODE_EXTRABIT = {
         {1, 0, 0},
         {2, 1, 0},
         {3, 2, 0},
@@ -34,25 +34,13 @@ public final class OffsetTables {
         {24577, 29, 13}
     };
 
-    public static int[] binarySearch(int value) {
-        if(DISTANCE_CODE[DISTANCE_CODE.length-1][0] <= value) {
-            return DISTANCE_CODE[DISTANCE_CODE.length-1];
-        }
-        int[][] table = OffsetTables.DISTANCE_CODE;
-        int left = 0, right = table.length - 1;
-        int resultIndex = -1;
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-
-            if (table[mid][0] >= value) {
-                resultIndex = mid;
-                right = mid - 1;
-            } else {
-                left = mid + 1;
+    public static int[] search(int distance) {
+        for (int i = CODE_EQUAL_BASE_CODE_EXTRABIT.length - 1; i >= 0; i--) {
+            if(CODE_EQUAL_BASE_CODE_EXTRABIT[i][0] <= distance){
+                return CODE_EQUAL_BASE_CODE_EXTRABIT[i];
             }
         }
 
-        return DISTANCE_CODE[resultIndex];
+        throw new RuntimeException("offset error");
     }
 }

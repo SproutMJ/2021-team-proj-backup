@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.BitSet;
 
-class BitOutputStream implements Closeable {
+public class BitOutputStream implements Closeable {
     private OutputStream out;
     private int currentByte;
     private int numBitsFilled;
@@ -14,12 +14,6 @@ class BitOutputStream implements Closeable {
         this.out = out;
         this.currentByte = 0;
         this.numBitsFilled = 0;
-    }
-
-    public void writeBit(BitSet bits) throws IOException {
-        for (int i = 0; i < bits.length(); i++) {
-            writeBit(bits.get(i) ? 1 : 0);
-        }
     }
 
     public void writeBit(int bit) throws IOException {
@@ -45,13 +39,16 @@ class BitOutputStream implements Closeable {
         out.close();
     }
 
-    public void writeBit(int value, int length) throws IOException {
-        BitSet bitSet = new BitSet(length);
+    public void writeBit(long value, int length) throws IOException {
+        long mask = (1L << (length - 1));
         for (int i = 0; i < length; i++) {
-            if ((value & (1 << (length - i - 1))) != 0) {
-                bitSet.set(i);
+            int bit = (int) (value & mask);
+            if(bit == 0){
+                writeBit(0);
+            }else {
+                writeBit(1);
             }
+            mask >>>= 1;
         }
-        writeBit(bitSet);
     }
 }
