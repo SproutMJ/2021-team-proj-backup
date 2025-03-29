@@ -3,7 +3,8 @@ package service;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.BitSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,13 @@ public class Deflate {
         try (FileInputStream fis = new FileInputStream(inputFile)) {
             byte[] buffer = new byte[BUFFER_SIZE];
 
-            while ((fis.read(buffer)) != -1) {
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                bytesReadTotal += bytesRead;
+                long bfinal = BitUtil.addBit(0L, 0);
+                if (bytesReadTotal == fileSize) {
+                    bfinal = BitUtil.addBit(0L, 1);
+                }
+
                 //1. 압축 방식 결정
 
                 //2. 헤더 결정(3비트)
@@ -27,7 +34,10 @@ public class Deflate {
                 fixCompress();
 
                 //가변 허프만 코딩 (BTYPE=10)
-                dynamicCompress(buffer, outputFile);
+                long btype = 0L;
+                btype = BitUtil.addBit(btype, 1);
+                btype = BitUtil.addBit(btype, 0);
+                dynamicCompress(buffer, outputFile, bfinal, btype);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,7 +45,7 @@ public class Deflate {
 
     }
 
-    private void dynamicCompress(byte[] data, String outputFile) throws IOException {
+    private void dynamicCompress(byte[] data, String outputFile, long bfinal, long btype) throws IOException {
         //1단계 LZ77
         List<LZ77.Triple> compressed = lz77.generateCodes(data);
 

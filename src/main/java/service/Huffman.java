@@ -30,19 +30,19 @@ public class Huffman {
     }
 
     class HuffmanCodes {
-        Map<Integer, BitSet> literalCode;
-        Map<Integer, BitSet> offsetCode;
+        Map<Integer, Long> literalCode;
+        Map<Integer, Long> offsetCode;
 
-        public HuffmanCodes(Map<Integer, BitSet> literalCode, Map<Integer, BitSet> offsetCode) {
+        public HuffmanCodes(Map<Integer, Long> literalCode, Map<Integer, Long> offsetCode) {
             this.literalCode = literalCode;
             this.offsetCode = offsetCode;
         }
 
-        public Map<Integer, BitSet> getLiteralCode() {
+        public Map<Integer, Long> getLiteralCode() {
             return literalCode;
         }
 
-        public Map<Integer, BitSet> getOffsetCode() {
+        public Map<Integer, Long> getOffsetCode() {
             return offsetCode;
         }
     }
@@ -69,7 +69,7 @@ public class Huffman {
         return List.of(literalLengthTable, offsetTable);
     }
 
-    private Map<Integer, BitSet> buildTree(Map<Integer, Long> frequencyTable){
+    private Map<Integer, Long> buildTree(Map<Integer, Long> frequencyTable){
         PriorityQueue<HuffmanNode> pq = new PriorityQueue<>();
         for (Map.Entry<Integer, Long> entry : frequencyTable.entrySet()) {
             pq.add(new HuffmanNode(entry.getKey(), entry.getValue()));
@@ -83,27 +83,23 @@ public class Huffman {
         }
 
         HuffmanNode root = pq.poll();
-        Map<Integer, BitSet> huffmanCodes = new HashMap<>();
+        Map<Integer, Long> huffmanCodes = new HashMap<>();
 
-        generateCodes(root, new BitSet(), huffmanCodes);
+        generateCodes(root, 0L, huffmanCodes);
         return huffmanCodes;
     }
 
-    private void generateCodes(HuffmanNode node, BitSet code, Map<Integer, BitSet> codeMap) {
+    private void generateCodes(HuffmanNode node, long code, Map<Integer, Long> codeMap) {
         if (node.left == null && node.right == null) {
             codeMap.put(node.symbol, code);
             return;
         }
         if (node.left != null) {
-            BitSet clone = (BitSet) code.clone();
-            clone.set(clone.length());
-            clone.clear(clone.length());
-            generateCodes(node.left, clone, codeMap);
+            generateCodes(node.left, BitUtil.addBit(code, 0), codeMap);
         }
+
         if (node.right != null) {
-            BitSet clone = (BitSet) code.clone();
-            clone.set(clone.length());
-            generateCodes(node.right, clone, codeMap);
+            generateCodes(node.right, BitUtil.addBit(code, 1), codeMap);
         }
     }
 }
