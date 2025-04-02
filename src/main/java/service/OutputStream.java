@@ -2,14 +2,13 @@ package service;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.OutputStream;
 
-public class BitOutputStream implements Closeable {
-    private OutputStream out;
+public class OutputStream implements Closeable {
+    private java.io.OutputStream out;
     private int currentByte;
     private int numBitsFilled;
 
-    public BitOutputStream(OutputStream out) {
+    public OutputStream(java.io.OutputStream out) {
         this.out = out;
         this.currentByte = 0;
         this.numBitsFilled = 0;
@@ -25,19 +24,6 @@ public class BitOutputStream implements Closeable {
         }
     }
 
-    private void flush() throws IOException {
-        if (numBitsFilled > 0) {
-            currentByte <<= (8 - numBitsFilled);
-            out.write(currentByte);
-        }
-        out.flush();
-    }
-
-    public void close() throws IOException {
-        flush();
-        out.close();
-    }
-
     public void writeBit(long value, int length) throws IOException {
         long mask = (1L << (length - 1));
         for (int i = 0; i < length; i++) {
@@ -49,5 +35,28 @@ public class BitOutputStream implements Closeable {
             }
             mask >>>= 1;
         }
+    }
+
+    public void writeByte(long b) throws IOException {
+        writeBit((int) b, 8);
+    }
+
+    public void writeByte(byte[] bytes) throws IOException {
+        for (byte byt : bytes) {
+            writeByte(byt);
+        }
+    }
+
+    private void flush() throws IOException {
+        if (numBitsFilled > 0) {
+            currentByte <<= (8 - numBitsFilled);
+            out.write(currentByte);
+        }
+        out.flush();
+    }
+
+    public void close() throws IOException {
+        flush();
+        out.close();
     }
 }

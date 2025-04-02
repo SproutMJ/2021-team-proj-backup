@@ -1,14 +1,13 @@
 package service;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-public class BitInputStream implements AutoCloseable {
-    private InputStream in;
+public class InputStream implements AutoCloseable {
+    private java.io.InputStream in;
     private int buffer;
     private int bitsInBuffer;
 
-    public BitInputStream(InputStream in) {
+    public InputStream(java.io.InputStream in) {
         this.in = in;
         this.buffer = 0;
         this.bitsInBuffer = 0;
@@ -32,6 +31,19 @@ public class BitInputStream implements AutoCloseable {
         int result = 0;
         for (int i = 0; i < numBits; i++) {
             result = (result << 1) | readBit();
+        }
+        return result;
+    }
+
+    public byte readByte() throws IOException {
+        return (byte) readBits(8);
+    }
+
+    // 지정한 개수만큼의 byte 배열을 읽어서 반환하는 메서드
+    public byte[] readBytes(int numBytes) throws IOException {
+        byte[] result = new byte[numBytes];
+        for (int i = 0; i < numBytes; i++) {
+            result[i] = readByte();
         }
         return result;
     }
