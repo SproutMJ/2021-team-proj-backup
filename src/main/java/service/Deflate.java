@@ -208,6 +208,8 @@ public class Deflate {
 
                 // LZ77 블록 복구 및 원본 파일 복원
                 List<LZ77.Triple> triples = decompressBlock(bis, literalTree, distanceTree);
+                byte[] decode = lz77.decode(triples);
+                fos.write(decode, 0, decode.length);
             }
         }
     }

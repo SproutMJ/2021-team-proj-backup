@@ -59,4 +59,31 @@ public class LZ77 {
         }
         return compressed;
     }
+
+    public byte[] decode(List<Triple> triples) {
+        List<Byte> decoded = new ArrayList<>();
+
+        for (Triple triple : triples) {
+            // 리터럴인 경우: offset과 length가 0이면 단일 바이트를 추가
+            if (triple.offset == 0 && triple.length == 0) {
+                decoded.add(triple.nextByte);
+            } else {
+                // 디코딩할 때, 이미 복원된 데이터를 참조하여 길이만큼 복사 (오버랩 복사 지원)
+                int start = decoded.size() - triple.offset;
+                for (int i = 0; i < triple.length; i++) {
+                    // 오버랩된 영역도 정상적으로 복사되도록, 매번 현재 리스트에서 읽음
+                    decoded.add(decoded.get(start + i));
+                }
+                // 그 후에 다음 바이트 추가
+                decoded.add(triple.nextByte);
+            }
+        }
+
+        // List<Byte>를 byte[]로 변환
+        byte[] result = new byte[decoded.size()];
+        for (int i = 0; i < decoded.size(); i++) {
+            result[i] = decoded.get(i);
+        }
+        return result;
+    }
 }
