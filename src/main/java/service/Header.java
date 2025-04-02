@@ -31,12 +31,9 @@ public class Header {
     private Header() {
     }
 
-    public static Header createEncodedHeader(long bfinal, long btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
-        return new Header(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengths, rleEncodedLengths, codeLengthCodes);
-    }
-
-    public static Header createDecodedHeader(long bfinal, long btype, int hlit, int hdist, int hclen, Map<Integer, Integer> codeLengthCodeLengthsMap, Map<Long, Integer> codeLengthAlphabetTree, List<Integer> decompressedCodeLengths, Map<Integer, Integer> literalLengths, Map<Integer, Integer> distanceLengths, Map<Long, Integer> literalTree, Map<Long, Integer> distanceTree) {
-        return new Header(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengthsMap, codeLengthAlphabetTree, decompressedCodeLengths, literalLengths, distanceLengths, literalTree, distanceTree);
+    private Header(long bfinal, long btype) {
+        this.bfinal = bfinal;
+        this.btype = btype;
     }
 
     private Header(long bfinal, long btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
@@ -63,6 +60,18 @@ public class Header {
         this.distanceLengths = distanceLengths;
         this.literalTree = literalTree;
         this.distanceTree = distanceTree;
+    }
+
+    public static Header createEncodedHeader(long bfinal, long btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
+        return new Header(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengths, rleEncodedLengths, codeLengthCodes);
+    }
+
+    public static Header createDecodedHeaderDynamicCompressed(long bfinal, long btype, int hlit, int hdist, int hclen, Map<Integer, Integer> codeLengthCodeLengthsMap, Map<Long, Integer> codeLengthAlphabetTree, List<Integer> decompressedCodeLengths, Map<Integer, Integer> literalLengths, Map<Integer, Integer> distanceLengths, Map<Long, Integer> literalTree, Map<Long, Integer> distanceTree) {
+        return new Header(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengthsMap, codeLengthAlphabetTree, decompressedCodeLengths, literalLengths, distanceLengths, literalTree, distanceTree);
+    }
+
+    public static Header createDecodedHeaderNoneCompressed(long bfinal, long btype) {
+        return new Header(bfinal, btype);
     }
 
     public long getBfinal() {

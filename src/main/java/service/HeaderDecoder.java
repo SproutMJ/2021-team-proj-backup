@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HeaderDecoder {
-    public Header decodeHeader(BitInputStream bitIn) throws IOException {
+    public Header decodeHeader(InputStream bitIn) throws IOException {
 
         // 1. 블록 헤더 읽기 (3비트)
         // BFINAL (1비트): 마지막 블록 여부
@@ -19,8 +19,14 @@ public class HeaderDecoder {
         btype = BitUtil.addBit(btype, bitIn.readBit());
         btype = BitUtil.addBit(btype, bitIn.readBit());
 
-        // 동적 허프만 코딩(BTYPE=10)인 경우에만 추가 헤더 필드 읽기
-        if (BitUtil.extractBits(btype).get(0) == 2) {
+        if (CompressType.NONE.value == btype) {
+            //비압축 블록 (BTYPE=00)
+            return Header.createDecodedHeaderNoneCompressed(bfinal, btype);
+        } else if (CompressType.FIX_HUFFMAN.value == btype) {
+            //고정 허프만 코딩 (BTYPE=01)
+
+        } else if (CompressType.DYNAMIC_HUFFMAN.value == btype) {
+            // 동적 허프만 코딩(BTYPE=10)인 경우 추가 헤더 필드 읽기
             // 2. HLIT, HDIST, HCLEN 읽기
             // HLIT (5비트): 리터럴/길이 코드 수 - 257
             int hlit = bitIn.readBits(5);
@@ -65,10 +71,10 @@ public class HeaderDecoder {
             Map<Long, Integer> literalTree = reconstructReverseHuffmanTree(literalCodeLengths);
             Map<Long, Integer> distanceTree = reconstructReverseHuffmanTree(distanceCodeLengths);
 
-            return Header.createDecodedHeader(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengths, codeLengthAlphabetTree, decompressedCodeLengths, literalCodeLengths, distanceCodeLengths, literalTree, distanceTree);
+            return Header.createDecodedHeaderDynamicCompressed(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengths, codeLengthAlphabetTree, decompressedCodeLengths, literalCodeLengths, distanceCodeLengths, literalTree, distanceTree);
         }
 
-        return null;
+        throw new RuntimeException("Unrecognized compress type.");
     }
 
     private Map<Long, Integer> reconstructReverseHuffmanTree(Map<Integer, Integer> codeLengths) {
@@ -82,7 +88,7 @@ public class HeaderDecoder {
         return huffmanTree;
     }
 
-    private List<Integer> decompressRLE(BitInputStream reader,
+    private List<Integer> decompressRLE(InputStream reader,
                                         Map<Long, Integer> huffmanTree,
                                         int totalCodeLengths) throws IOException {
         List<Integer> codeLengths = new ArrayList<>();
