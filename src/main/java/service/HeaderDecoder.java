@@ -11,13 +11,16 @@ public class HeaderDecoder {
 
         // 1. 블록 헤더 읽기 (3비트)
         // BFINAL (1비트): 마지막 블록 여부
-        int bfinal = bitIn.readBit();
+        long bfinal = 0L;
+        bfinal = BitUtil.addBit(bfinal, bitIn.readBit());
 
         // BTYPE (2비트): 압축 방식
-        int btype = (bitIn.readBit() << 1) | bitIn.readBit();
+        long btype = 0L;
+        btype = BitUtil.addBit(btype, bitIn.readBit());
+        btype = BitUtil.addBit(btype, bitIn.readBit());
 
         // 동적 허프만 코딩(BTYPE=10)인 경우에만 추가 헤더 필드 읽기
-        if (btype == 2) {
+        if (BitUtil.extractBits(btype).get(0) == 2) {
             // 2. HLIT, HDIST, HCLEN 읽기
             // HLIT (5비트): 리터럴/길이 코드 수 - 257
             int hlit = bitIn.readBits(5);
