@@ -3,7 +3,6 @@ package service;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.BitSet;
 
 public class BitOutputStream implements Closeable {
     private OutputStream out;
@@ -26,7 +25,7 @@ public class BitOutputStream implements Closeable {
         }
     }
 
-    public void flush() throws IOException {
+    private void flush() throws IOException {
         if (numBitsFilled > 0) {
             currentByte <<= (8 - numBitsFilled);
             out.write(currentByte);
@@ -43,9 +42,9 @@ public class BitOutputStream implements Closeable {
         long mask = (1L << (length - 1));
         for (int i = 0; i < length; i++) {
             int bit = (int) (value & mask);
-            if(bit == 0){
+            if (bit == 0) {
                 writeBit(0);
-            }else {
+            } else {
                 writeBit(1);
             }
             mask >>>= 1;
