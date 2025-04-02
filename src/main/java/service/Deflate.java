@@ -18,7 +18,7 @@ public class Deflate {
 
     public void compress(String inputFile, String outputFile) {
         try (FileInputStream fis = new FileInputStream(inputFile);
-             BitOutputStream bitOut = new BitOutputStream(new FileOutputStream(outputFile, true))) {
+             OutputStream bitOut = new OutputStream(new FileOutputStream(outputFile, true))) {
             File file = new File(inputFile);
             long fileSize = file.length(); // 파일 전체 크기
             long bytesReadTotal = 0;       // 지금까지 읽은 바이트 수
@@ -31,25 +31,35 @@ public class Deflate {
                 if (bytesReadTotal == fileSize) {
                     bfinal = BitUtil.addBit(0L, 1);
                 }
-                //1. 압축 방식 결정
-                    //1-1. 헤더 결정(3비트)
-                    //비압축 블록 (BTYPE=00)
+                //압축 방식 결정
+                long btype = determineCompressType(buffer);
 
+                if (CompressType.NONE.value == btype) {
+                    //비압축 블록 (BTYPE=00)
+                    bitOut.writeBit(bfinal, 1);
+                    bitOut.writeBit(btype, 2);
+                    bitOut.writeByte(buffer);
+                } else if (CompressType.FIX_HUFFMAN.value == btype) {
                     //고정 허프만 코딩 (BTYPE=01)
 
+                } else if (CompressType.DYNAMIC_HUFFMAN.value == btype) {
                     //가변 허프만 코딩 (BTYPE=10)
-                long btype = 0L;
-                btype = BitUtil.addBit(btype, 1);
-                btype = BitUtil.addBit(btype, 0);
-                dynamicCompress(buffer, bitOut, bfinal, btype);
+                    dynamicCompress(buffer, bitOut, bfinal, btype);
+                } else {
+                    throw new RuntimeException("Unrecognized compress type.");
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
     }
 
-    private void dynamicCompress(byte[] data, BitOutputStream bitOut, long bfinal, long btype) throws IOException {
+    private long determineCompressType(byte[] buffer) {
+        //다이나믹 고정
+        return BitUtil.init(2, 2);
+    }
+
+    private void dynamicCompress(byte[] data, OutputStream bitOut, long bfinal, long btype) throws IOException {
         //1단계 LZ77
         List<LZ77.Triple> compressed = lz77.generateCodes(data);
 
@@ -95,7 +105,7 @@ public class Deflate {
         bitOutEndCode(bitOut, literalCode);
     }
 
-    private void bitOutHeader(BitOutputStream bitOut, Header encodedHeaderInfo) throws IOException {
+    private void bitOutHeader(OutputStream bitOut, Header encodedHeaderInfo) throws IOException {
         bitOut.writeBit(encodedHeaderInfo.getBfinal(), 1);
         bitOut.writeBit(encodedHeaderInfo.getBtype(), 2);
         bitOut.writeBit(encodedHeaderInfo.getHlit(), 5);
@@ -108,11 +118,11 @@ public class Deflate {
         }
     }
 
-    private void bitOutEndCode(BitOutputStream bitOut, Map<Integer, Long> literalCode) throws IOException {
+    private void bitOutEndCode(OutputStream bitOut, Map<Integer, Long> literalCode) throws IOException {
         bitOut.writeBit(literalCode.get(256), Math.toIntExact(BitUtil.extractBits(literalCode.get(256)).get(1)));
     }
 
-    private void bitOutLZ77(List<LZ77.Triple> compressed, BitOutputStream bitOut, Map<Integer, Long> literalCode, Map<Integer, Long> distanceCode) throws IOException {
+    private void bitOutLZ77(List<LZ77.Triple> compressed, OutputStream bitOut, Map<Integer, Long> literalCode, Map<Integer, Long> distanceCode) throws IOException {
         for (LZ77.Triple triple : compressed) {
             if (triple.length == 0) {
                 bitOut.writeBit(literalCode.get((int) triple.nextByte), Math.toIntExact(BitUtil.extractBits(literalCode.get((int) triple.nextByte)).get(1)));
@@ -136,7 +146,7 @@ public class Deflate {
         }
     }
 
-    private void bitOutRle(Header encodedHeaderInfo, BitOutputStream bitOut) throws IOException {
+    private void bitOutRle(Header encodedHeaderInfo, OutputStream bitOut) throws IOException {
         List<Integer> rleEncoded = encodedHeaderInfo.getRleEncodedLengths();
         Map<Integer, Long> codeLengthCodes = encodedHeaderInfo.getCodeLengthCodes();
 
@@ -189,7 +199,7 @@ public class Deflate {
     }
 
     public void decompress(String inputFile, String outputFile) throws IOException {
-        try (BitInputStream bis = new BitInputStream(new FileInputStream(inputFile));
+        try (InputStream bis = new InputStream(new FileInputStream(inputFile));
              FileOutputStream fos = new FileOutputStream(outputFile, true)) {
 
             boolean lastBlock = false;
@@ -200,22 +210,35 @@ public class Deflate {
                 Header decodedHeaderInfo = headerDecoder.decodeHeader(bis);
 
                 lastBlock = BitUtil.extractBits(decodedHeaderInfo.getBfinal()).get(0) == 1;
-                Map<Long, Integer> literalTree = decodedHeaderInfo.getLiteralTree();
+                long btype = decodedHeaderInfo.getBtype();
 
-                Map<Long, Integer> distanceTree = decodedHeaderInfo.getDistanceTree();
+                if (CompressType.NONE.value == btype) {
+                    //비압축 블록 (BTYPE=00)
+                    byte[] bytes = bis.readBytes(BUFFER_SIZE);
+                    fos.write(bytes);
+                } else if (CompressType.FIX_HUFFMAN.value == btype) {
+                    //고정 허프만 코딩 (BTYPE=01)
 
-                // LZ77 블록 복구 및 원본 파일 복원
-                List<LZ77.Triple> triples = decompressBlock(bis, literalTree, distanceTree);
-                byte[] decode = lz77.decode(triples);
-                fos.write(decode, 0, decode.length);
+                } else if (CompressType.DYNAMIC_HUFFMAN.value == btype) {
+                    //가변 허프만 코딩 (BTYPE=10)
+                    Map<Long, Integer> literalTree = decodedHeaderInfo.getLiteralTree();
+
+                    Map<Long, Integer> distanceTree = decodedHeaderInfo.getDistanceTree();
+
+                    // LZ77 블록 복구 및 원본 파일 복원
+                    List<LZ77.Triple> triples = decompressBlock(bis, literalTree, distanceTree);
+                    byte[] decode = lz77.decode(triples);
+                    fos.write(decode, 0, decode.length);
+                } else {
+                    throw new RuntimeException("Unrecognized compress type.");
+                }
             }
         }
     }
 
-    private List<LZ77.Triple> decompressBlock(BitInputStream bis,
+    private List<LZ77.Triple> decompressBlock(InputStream bis,
                                               Map<Long, Integer> literalTree,
                                               Map<Long, Integer> distanceTree) throws IOException {
-
         List<LZ77.Triple> triples = new ArrayList<>();
         while (true) {
             // 리터럴/길이 코드 읽기
@@ -243,7 +266,7 @@ public class Deflate {
         return triples;
     }
 
-    private int decodeSymbol(Map<Long, Integer> tree, int limit, BitInputStream bis) throws IOException {
+    private int decodeSymbol(Map<Long, Integer> tree, int limit, InputStream bis) throws IOException {
         Integer symbol = null;
         long code = 0;
         while (symbol == null) {
@@ -261,7 +284,7 @@ public class Deflate {
         return symbol;
     }
 
-    private int decodeLength(int symbol, BitInputStream bis) throws IOException {
+    private int decodeLength(int symbol, InputStream bis) throws IOException {
         if (symbol < 257 || symbol > 285) {
             throw new IOException("유효하지 않은 길이 심볼: " + symbol);
         }
@@ -278,7 +301,7 @@ public class Deflate {
         }
     }
 
-    private int decodeDistance(int symbol, BitInputStream bis) throws IOException {
+    private int decodeDistance(int symbol, InputStream bis) throws IOException {
         if (symbol < 0 || symbol > 29) {
             throw new IOException("유효하지 않은 거리 심볼: " + symbol);
         }
