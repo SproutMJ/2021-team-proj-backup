@@ -31,13 +31,12 @@ public class Deflate {
                     bfinal = BitUtil.addBit(0L, 1);
                 }
                 //1. 압축 방식 결정
+                    //1-1. 헤더 결정(3비트)
+                    //비압축 블록 (BTYPE=00)
 
-                //2. 헤더 결정(3비트)
-                //비압축 블록 (BTYPE=00)
+                    //고정 허프만 코딩 (BTYPE=01)
 
-                //고정 허프만 코딩 (BTYPE=01)
-
-                //가변 허프만 코딩 (BTYPE=10)
+                    //가변 허프만 코딩 (BTYPE=10)
                 long btype = 0L;
                 btype = BitUtil.addBit(btype, 1);
                 btype = BitUtil.addBit(btype, 0);

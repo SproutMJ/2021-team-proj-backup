@@ -1,7 +1,6 @@
 package service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +44,8 @@ public class HeaderEncoder {
         Map<Integer, Long> codes = huffman.generateCanonicalCodes(lengths);
 
         int maxCodeLengthCode = Header.CODE_LENGTH_CODE_ORDER.length;
-        for (; maxCodeLengthCode>=0; maxCodeLengthCode--) {
-            if(lengths.containsKey(Header.CODE_LENGTH_CODE_ORDER[maxCodeLengthCode-1])) {
+        for (; maxCodeLengthCode >= 0; maxCodeLengthCode--) {
+            if (lengths.containsKey(Header.CODE_LENGTH_CODE_ORDER[maxCodeLengthCode - 1])) {
                 break;
             }
         }
