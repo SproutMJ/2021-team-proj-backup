@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,11 +54,13 @@ public class Deflate {
         List<LZ77.Triple> compressed = lz77.generateCodes(data);
 
         //2단계 허프만 트리 생성
-        Huffman.HuffmanCodes huffmanCodes = huffman.buildHuffmanCodes(compressed);
-        Map<Integer, Long> literalCode = huffmanCodes.getLiteralCode();
-        Map<Integer, Long> offsetCode = huffmanCodes.getOffsetCode();
+        Map<Integer, Long> literalLengthFrequency = makeLengthFrequency(compressed);
+        Map<Integer, Long> distanceFrequency = makeDistanceFrequency(compressed);
+        Map<Integer, Integer> literalCodeLength = huffman.buildTreeLengthWithLimit(literalLengthFrequency, 15);
+        Map<Integer, Integer> distanceCodeLength = huffman.buildTreeLengthWithLimit(distanceFrequency, 15);
+        Map<Integer, Long> literalCode = huffman.generateCanonicalCodes(literalCodeLength);
+        Map<Integer, Long> distanceCode = huffman.generateCanonicalCodes(distanceCodeLength);
 
-        // 동적 변환 필요(마지막거까지)
         int[] literalLengths = new int[286];
         for (int symbol = 0; symbol < 286; symbol++) {
             int add = 0;
@@ -74,7 +77,7 @@ public class Deflate {
 
         int[] distanceLengths = new int[30];
         for (int symbol = 0; symbol < 30; symbol++) {
-            Long code = offsetCode.get(symbol);
+            Long code = distanceCode.get(symbol);
             if (code != null) {
                 distanceLengths[symbol] = Math.toIntExact(BitUtil.extractBits(code).get(1));
             } else {
@@ -83,73 +86,109 @@ public class Deflate {
         }
 
         HeaderEncoder headerEncoder = new HeaderEncoder();
-        HeaderEncoder.HeaderInfo headerInfo = headerEncoder.encodeHeader(BitUtil.extractBits(bfinal).get(0) == 1, 2, literalLengths, distanceLengths);
+        Header encodedHeaderInfo = headerEncoder.encodeHeader(BitUtil.extractBits(bfinal).get(0) == 1, 2, literalLengths, distanceLengths);
 
         //3단계 출력
         try (BitOutputStream bitOut = new BitOutputStream(new FileOutputStream(outputFile, true))) {
-            //헤더 출력
-            bitOut.writeBit(bfinal, 1);
-            bitOut.writeBit(btype, 2);
-            bitOut.writeBit(literalCode.size() - 257, 5);
-            bitOut.writeBit(distanceLengths.length - 1, 5);
-            bitOut.writeBit(headerInfo.getHclen(), 4);
-
-            // 코드 길이 알파벳 코드 길이 출력
-            for (int i = 0; i < headerInfo.getHclen() + 4; i++) {
-                bitOut.writeBit(headerInfo.getCodeLengthCodeLengths()[i], 3);
-            }
-
-            // RLE 인코딩된 코드 길이 출력
-            List<Integer> rleEncoded = headerInfo.getRleEncodedLengths();
-            Map<Integer, Long> codeLengthCodes = headerInfo.getCodeLengthCodes();
-
-            for (int i = 0; i < rleEncoded.size(); i++) {
-                int symbol = rleEncoded.get(i);
-                Long code = codeLengthCodes.get(symbol);
-
-                // 코드 작성
-                bitOut.writeBit(BitUtil.extractBits(code).get(0), Math.toIntExact(BitUtil.extractBits(code).get(1)));
-
-                // 특수 코드의 추가 비트 작성
-                if (symbol == 16) {
-                    // 이전 코드 반복 (3-6회): 2비트 추가
-                    int repeatCount = rleEncoded.get(++i);
-                    bitOut.writeBit(repeatCount, 2);
-                } else if (symbol == 17) {
-                    // 0 반복 (3-10회): 3비트 추가
-                    int repeatCount = rleEncoded.get(++i);
-                    bitOut.writeBit(repeatCount, 3);
-                } else if (symbol == 18) {
-                    // 0 반복 (11-138회): 7비트 추가
-                    int repeatCount = rleEncoded.get(++i);
-                    bitOut.writeBit(repeatCount, 7);
-                }
-            }
-
-            for (LZ77.Triple triple : compressed) {
-                if (triple.length == 0) {
-                    bitOut.writeBit(literalCode.get((int) triple.nextByte), Math.toIntExact(BitUtil.extractBits(literalCode.get((int) triple.nextByte)).get(1)));
-                } else {
-                    int[] codee = LengthTables.LENGTH_EQUAL_CODE_BASE_EXTRABIT[triple.length];
-                    bitOut.writeBit(literalCode.get(codee[0]), Math.toIntExact(BitUtil.extractBits(literalCode.get(codee[0])).get(1)));
-                    int extraBitCount = codee[2];
-                    if (extraBitCount > 0) {
-                        bitOut.writeBit(triple.length - codee[1], extraBitCount);
-                    }
-
-                    int[] offset = DistanceTables.search(triple.offset);
-                    bitOut.writeBit(offsetCode.get(offset[1]), Math.toIntExact(BitUtil.extractBits(offsetCode.get(offset[1])).get(1)));
-                    extraBitCount = offset[2];
-                    if (extraBitCount > 0) {
-                        bitOut.writeBit(triple.offset - offset[0], extraBitCount);
-                    }
-
-                    bitOut.writeBit(literalCode.get((int) triple.nextByte), Math.toIntExact(BitUtil.extractBits(literalCode.get((int) triple.nextByte)).get(1)));
-                }
-            }
-            bitOut.writeBit(literalCode.get(256), Math.toIntExact(BitUtil.extractBits(literalCode.get(256)).get(1)));
+            bitOutHeader(bitOut, encodedHeaderInfo);
+            bitOutRle(encodedHeaderInfo, bitOut);
+            bitOutLZ77(compressed, bitOut, literalCode, distanceCode);
+            bitOutEndCode(bitOut, literalCode);
             bitOut.flush();
         }
+    }
+
+    private void bitOutHeader(BitOutputStream bitOut, Header encodedHeaderInfo) throws IOException {
+        bitOut.writeBit(encodedHeaderInfo.getBfinal(), 1);
+        bitOut.writeBit(encodedHeaderInfo.getBtype(), 2);
+        bitOut.writeBit(encodedHeaderInfo.getHlit(), 5);
+        bitOut.writeBit(encodedHeaderInfo.getHdist(), 5);
+        bitOut.writeBit(encodedHeaderInfo.getHclen(), 4);
+
+        // 코드 길이 알파벳 코드 길이 출력
+        for (int i = 0; i < encodedHeaderInfo.getHclen() + 4; i++) {
+            bitOut.writeBit(encodedHeaderInfo.getCodeLengthCodeLengths()[i], 3);
+        }
+    }
+
+    private void bitOutEndCode(BitOutputStream bitOut, Map<Integer, Long> literalCode) throws IOException {
+        bitOut.writeBit(literalCode.get(256), Math.toIntExact(BitUtil.extractBits(literalCode.get(256)).get(1)));
+    }
+
+    private void bitOutLZ77(List<LZ77.Triple> compressed, BitOutputStream bitOut, Map<Integer, Long> literalCode, Map<Integer, Long> distanceCode) throws IOException {
+        for (LZ77.Triple triple : compressed) {
+            if (triple.length == 0) {
+                bitOut.writeBit(literalCode.get((int) triple.nextByte), Math.toIntExact(BitUtil.extractBits(literalCode.get((int) triple.nextByte)).get(1)));
+            } else {
+                int[] codee = LengthTables.LENGTH_EQUAL_CODE_BASE_EXTRABIT[triple.length];
+                bitOut.writeBit(literalCode.get(codee[0]), Math.toIntExact(BitUtil.extractBits(literalCode.get(codee[0])).get(1)));
+                int extraBitCount = codee[2];
+                if (extraBitCount > 0) {
+                    bitOut.writeBit(triple.length - codee[1], extraBitCount);
+                }
+
+                int[] offset = DistanceTables.search(triple.offset);
+                bitOut.writeBit(distanceCode.get(offset[1]), Math.toIntExact(BitUtil.extractBits(distanceCode.get(offset[1])).get(1)));
+                extraBitCount = offset[2];
+                if (extraBitCount > 0) {
+                    bitOut.writeBit(triple.offset - offset[0], extraBitCount);
+                }
+
+                bitOut.writeBit(literalCode.get((int) triple.nextByte), Math.toIntExact(BitUtil.extractBits(literalCode.get((int) triple.nextByte)).get(1)));
+            }
+        }
+    }
+
+    private void bitOutRle(Header encodedHeaderInfo, BitOutputStream bitOut) throws IOException {
+        List<Integer> rleEncoded = encodedHeaderInfo.getRleEncodedLengths();
+        Map<Integer, Long> codeLengthCodes = encodedHeaderInfo.getCodeLengthCodes();
+
+        for (int i = 0; i < rleEncoded.size(); i++) {
+            int symbol = rleEncoded.get(i);
+            Long code = codeLengthCodes.get(symbol);
+
+            // 코드 작성
+            bitOut.writeBit(BitUtil.extractBits(code).get(0), Math.toIntExact(BitUtil.extractBits(code).get(1)));
+
+            // 특수 코드의 추가 비트 작성
+            if (symbol == 16) {
+                // 이전 코드 반복 (3-6회): 2비트 추가
+                int repeatCount = rleEncoded.get(++i);
+                bitOut.writeBit(repeatCount, 2);
+            } else if (symbol == 17) {
+                // 0 반복 (3-10회): 3비트 추가
+                int repeatCount = rleEncoded.get(++i);
+                bitOut.writeBit(repeatCount, 3);
+            } else if (symbol == 18) {
+                // 0 반복 (11-138회): 7비트 추가
+                int repeatCount = rleEncoded.get(++i);
+                bitOut.writeBit(repeatCount, 7);
+            }
+        }
+    }
+
+    private Map<Integer, Long> makeLengthFrequency(List<LZ77.Triple> compressed) {
+        Map<Integer, Long> literalLengthFrequency = new HashMap<>();
+        for (LZ77.Triple triple : compressed) {
+            int[] code = LengthTables.LENGTH_EQUAL_CODE_BASE_EXTRABIT[triple.length];
+            literalLengthFrequency.put(code[0], literalLengthFrequency.getOrDefault(code[0], 0L) + 1);
+            literalLengthFrequency.put((int) triple.nextByte, literalLengthFrequency.getOrDefault((int) triple.nextByte, 0L) + 1);
+        }
+        literalLengthFrequency.put(256, 1L);
+
+        return literalLengthFrequency;
+    }
+
+    private Map<Integer, Long> makeDistanceFrequency(List<LZ77.Triple> compressed) {
+        Map<Integer, Long> distanceFrequency = new HashMap<>();
+        for (LZ77.Triple triple : compressed) {
+            if (triple.offset > 0) {
+                int[] offsetCode = DistanceTables.search(triple.offset);
+                distanceFrequency.put(offsetCode[1], distanceFrequency.getOrDefault(offsetCode[1], 0L) + 1);
+            }
+        }
+
+        return distanceFrequency;
     }
 
     public void decompress(String inputFile, String outputFile) throws IOException {
@@ -161,12 +200,12 @@ public class Deflate {
             while (!lastBlock) {
                 // 헤더 정보 디코딩
                 HeaderDecoder headerDecoder = new HeaderDecoder();
-                HeaderDecoder.HeaderInfo headerInfo = headerDecoder.decodeHeader(bis);
+                Header decodedHeaderInfo = headerDecoder.decodeHeader(bis);
 
-                lastBlock = headerInfo.getBfinal() == 1;
-                Map<Long, Integer> literalTree = headerInfo.getLiteralTree();
+                lastBlock = decodedHeaderInfo.getBfinal() == 1;
+                Map<Long, Integer> literalTree = decodedHeaderInfo.getLiteralTree();
 
-                Map<Long, Integer> distanceTree = headerInfo.getDistanceTree();
+                Map<Long, Integer> distanceTree = decodedHeaderInfo.getDistanceTree();
 
                 // LZ77 블록 복구 및 원본 파일 복원
                 List<LZ77.Triple> triples = decompressBlock(bis, literalTree, distanceTree);
@@ -179,7 +218,6 @@ public class Deflate {
                                               Map<Long, Integer> distanceTree) throws IOException {
 
         List<LZ77.Triple> triples = new ArrayList<>();
-        int a = 0;
         while (true) {
             // 리터럴/길이 코드 읽기
             int symbol = decodeSymbol(literalTree, 15, bis);
@@ -189,7 +227,7 @@ public class Deflate {
                 triples.add(new LZ77.Triple(0, 0, (byte) symbol));
             } else {
                 // 길이-거리 쌍 처리
-                int length = decodeLength(symbol, bis, a);
+                int length = decodeLength(symbol, bis);
 
                 // 거리 코드 읽기
                 int distSymbol = decodeSymbol(distanceTree, 15, bis);
@@ -211,13 +249,9 @@ public class Deflate {
         long code = 0;
         while (symbol == null) {
             int bit = bis.readBit();
-            if (bit == -1) {
-                throw new IOException("예상치 못한 스트림 종료");
-            }
 
             code = BitUtil.addBit(code, bit);
 
-            // 리터럴/길이 트리에서 코드 검색
             symbol = tree.get(code);
 
             if (BitUtil.extractBits(code).get(1) > limit) {
@@ -228,7 +262,7 @@ public class Deflate {
         return symbol;
     }
 
-    private int decodeLength(int symbol, BitInputStream bis, int a) throws IOException {
+    private int decodeLength(int symbol, BitInputStream bis) throws IOException {
         if (symbol < 257 || symbol > 285) {
             throw new IOException("유효하지 않은 길이 심볼: " + symbol);
         }

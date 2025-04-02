@@ -1,6 +1,5 @@
 package service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class LZ77 {
         }
     }
 
-    public List<Triple> generateCodes(byte[] data) throws IOException {
+    public List<Triple> generateCodes(byte[] data) {
         List<Triple> compressed = new ArrayList<>();
         int i = 0;
         while (i < data.length) {

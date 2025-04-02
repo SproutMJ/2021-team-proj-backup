@@ -1,6 +1,5 @@
 package service;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,108 +41,7 @@ public class Huffman {
         }
     }
 
-    class HuffmanCodes {
-        Map<Integer, Long> literalCode;
-        Map<Integer, Long> offsetCode;
-        Map<Integer, Integer> literalCodeLengths;
-        Map<Integer, Integer> offsetCodeLengths;
-
-        public HuffmanCodes(Map<Integer, Long> literalCode, Map<Integer, Long> offsetCode,
-                            Map<Integer, Integer> literalCodeLengths, Map<Integer, Integer> offsetCodeLengths) {
-            this.literalCode = literalCode;
-            this.offsetCode = offsetCode;
-            this.literalCodeLengths = literalCodeLengths;
-            this.offsetCodeLengths = offsetCodeLengths;
-        }
-
-        public Map<Integer, Long> getLiteralCode() {
-            return literalCode;
-        }
-
-        public Map<Integer, Long> getOffsetCode() {
-            return offsetCode;
-        }
-
-        public Map<Integer, Integer> getLiteralCodeLengths() {
-            return literalCodeLengths;
-        }
-
-        public Map<Integer, Integer> getOffsetCodeLengths() {
-            return offsetCodeLengths;
-        }
-    }
-
-    public HuffmanCodes buildHuffmanCodes(List<LZ77.Triple> compressed) {
-        List<Map<Integer, Long>> frequencies = makeFrequencies(compressed);
-
-        Map<Integer, Integer> literalLengths = buildTreeLengthWithLimit(frequencies.get(0), 15);
-        Map<Integer, Long> literalCodes = generateCanonicalCodes(literalLengths);
-
-        Map<Integer, Integer> offsetLengths = buildTreeLengthWithLimit(frequencies.get(1), 15);
-        Map<Integer, Long> offsetCodes = generateCanonicalCodes(offsetLengths);
-
-        return new HuffmanCodes(literalCodes, offsetCodes, literalLengths, offsetLengths);
-    }
-
-    public Map.Entry<Map<Integer, Long>, Map<Integer, Integer>> buildHuffmanCodes(int[] arr, int limit) {
-        Map<Integer, Long> frequencies = makeFrequencies(arr);
-        Map<Integer, Integer> codeLength = buildTreeLengthWithLimit(frequencies, limit);
-        Map<Integer, Long> code = generateCanonicalCodes(codeLength);
-
-        return new AbstractMap.SimpleEntry<>(code, codeLength);
-    }
-
-    public Map<Integer, Long> buildHuffmanCodesWithLengths(int[] codeLengths) {
-        Map<Integer, Integer> codeLength = new HashMap<>();
-        for (int i = 0; i < codeLengths.length; i++) {
-            if (codeLengths[i] > 0) {
-                codeLength.put(i, codeLengths[i]);
-            }
-        }
-
-        return generateCanonicalCodes(codeLength);
-    }
-
-    public Map<Integer, Long> buildHuffmanCodesWithLengths(Map<Integer, Integer> codeLengths) {
-        for (Map.Entry<Integer, Integer> entry : codeLengths.entrySet()) {
-            if (entry.getValue() == 0) {
-                codeLengths.remove(entry.getKey());
-            }
-        }
-
-        return generateCanonicalCodes(codeLengths);
-    }
-
-    private Map<Integer, Long> makeFrequencies(int[] arr) {
-        Map<Integer, Long> frequency = new HashMap<>();
-
-        for (int i = 0; i < arr.length; i++) {
-            frequency.put(i, (long) arr[i]);
-        }
-
-        return frequency;
-    }
-
-    private List<Map<Integer, Long>> makeFrequencies(List<LZ77.Triple> compressed) {
-        Map<Integer, Long> literalLengthTable = new HashMap<>();
-        Map<Integer, Long> offsetTable = new HashMap<>();
-
-        for (LZ77.Triple triple : compressed) {
-            int[] code = LengthTables.LENGTH_EQUAL_CODE_BASE_EXTRABIT[triple.length];
-            literalLengthTable.put(code[0], literalLengthTable.getOrDefault(code[0], 0L) + 1);
-            literalLengthTable.put((int) triple.nextByte, literalLengthTable.getOrDefault((int) triple.nextByte, 0L) + 1);
-
-            if (triple.offset > 0) {
-                int[] offsetCode = DistanceTables.search(triple.offset);
-                offsetTable.put(offsetCode[1], offsetTable.getOrDefault(offsetCode[1], 0L) + 1);
-            }
-        }
-
-        literalLengthTable.put(256, 1L);
-        return List.of(literalLengthTable, offsetTable);
-    }
-
-    private Map<Integer, Integer> buildTreeLengthWithLimit(Map<Integer, Long> frequencies, int limit) {
+    public Map<Integer, Integer> buildTreeLengthWithLimit(Map<Integer, Long> frequencies, int limit) {
         Map<Integer, Integer> codeLengths = new HashMap<>();
         List<HuffmanNode> nodes = calculateInitialCodeLengths(frequencies, codeLengths);
         codeLengths = limitCodeLengths(nodes, limit);
@@ -253,7 +151,7 @@ public class Huffman {
         return codeLengths;
     }
 
-    public static int limitedMinizInPlace(int newMaxLength, int oldMaxLength, int[] histNumBits) {
+    private int limitedMinizInPlace(int newMaxLength, int oldMaxLength, int[] histNumBits) {
         if (newMaxLength <= 1)
             return 0;
         if (newMaxLength > oldMaxLength)
@@ -286,7 +184,7 @@ public class Huffman {
         return newMaxLength;
     }
 
-    private Map<Integer, Long> generateCanonicalCodes(Map<Integer, Integer> codeLengths) {
+    public Map<Integer, Long> generateCanonicalCodes(Map<Integer, Integer> codeLengths) {
         Map<Integer, Long> codeMap = new HashMap<>();
         List<Map.Entry<Integer, Integer>> entries = new ArrayList<>(codeLengths.entrySet());
         entries.removeIf(entry -> entry.getValue() <= 0);
@@ -303,7 +201,7 @@ public class Huffman {
 
             code <<= (len - prevLen);
 
-            code = processOverflow(prefix, code, len);
+            code = checkPrefixAndProcessOverflow(prefix, code, len);
 
             codeMap.put(symbol, BitUtil.init(code, len));
             prefix.put(code, len);
@@ -317,7 +215,7 @@ public class Huffman {
         return codeMap;
     }
 
-    private long processOverflow(Map<Long, Integer> prefix, long code, int len) {
+    private long checkPrefixAndProcessOverflow(Map<Long, Integer> prefix, long code, int len) {
         while (checkPrefix(prefix, code, len)) {
             if (code == ((1L << (len)) - 1)) {
                 code = (1L << (len - 1));
