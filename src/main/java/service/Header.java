@@ -8,8 +8,8 @@ public class Header {
             16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
     };
 
-    private int bfinal;
-    private int btype;
+    private long bfinal;
+    private long btype;
     private int hlit;
     private int hdist;
     private int hclen;
@@ -31,15 +31,15 @@ public class Header {
     private Header() {
     }
 
-    public static Header createEncodedHeader(int bfinal, int btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
+    public static Header createEncodedHeader(long bfinal, long btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
         return new Header(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengths, rleEncodedLengths, codeLengthCodes);
     }
 
-    public static Header createDecodedHeader(int bfinal, int btype, int hlit, int hdist, int hclen, Map<Integer, Integer> codeLengthCodeLengthsMap, Map<Long, Integer> codeLengthAlphabetTree, List<Integer> decompressedCodeLengths, Map<Integer, Integer> literalLengths, Map<Integer, Integer> distanceLengths, Map<Long, Integer> literalTree, Map<Long, Integer> distanceTree) {
+    public static Header createDecodedHeader(long bfinal, long btype, int hlit, int hdist, int hclen, Map<Integer, Integer> codeLengthCodeLengthsMap, Map<Long, Integer> codeLengthAlphabetTree, List<Integer> decompressedCodeLengths, Map<Integer, Integer> literalLengths, Map<Integer, Integer> distanceLengths, Map<Long, Integer> literalTree, Map<Long, Integer> distanceTree) {
         return new Header(bfinal, btype, hlit, hdist, hclen, codeLengthCodeLengthsMap, codeLengthAlphabetTree, decompressedCodeLengths, literalLengths, distanceLengths, literalTree, distanceTree);
     }
 
-    private Header(int bfinal, int btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
+    private Header(long bfinal, long btype, int hlit, int hdist, int hclen, int[] codeLengthCodeLengths, List<Integer> rleEncodedLengths, Map<Integer, Long> codeLengthCodes) {
         this.bfinal = bfinal;
         this.btype = btype;
         this.hlit = hlit;
@@ -50,7 +50,7 @@ public class Header {
         this.codeLengthCodes = codeLengthCodes;
     }
 
-    private Header(int bfinal, int btype, int hlit, int hdist, int hclen, Map<Integer, Integer> codeLengthCodeLengthsMap, Map<Long, Integer> codeLengthAlphabetTree, List<Integer> decompressedCodeLengths, Map<Integer, Integer> literalLengths, Map<Integer, Integer> distanceLengths, Map<Long, Integer> literalTree, Map<Long, Integer> distanceTree) {
+    private Header(long bfinal, long btype, int hlit, int hdist, int hclen, Map<Integer, Integer> codeLengthCodeLengthsMap, Map<Long, Integer> codeLengthAlphabetTree, List<Integer> decompressedCodeLengths, Map<Integer, Integer> literalLengths, Map<Integer, Integer> distanceLengths, Map<Long, Integer> literalTree, Map<Long, Integer> distanceTree) {
         this.bfinal = bfinal;
         this.btype = btype;
         this.hlit = hlit;
@@ -65,11 +65,11 @@ public class Header {
         this.distanceTree = distanceTree;
     }
 
-    public int getBfinal() {
+    public long getBfinal() {
         return bfinal;
     }
 
-    public int getBtype() {
+    public long getBtype() {
         return btype;
     }
 

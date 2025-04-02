@@ -9,7 +9,7 @@ import java.util.Map;
 import static service.Header.createEncodedHeader;
 
 public class HeaderEncoder {
-    public Header encodeHeader(boolean isFinalBlock, int btype, int[] literalLengths, int[] distanceLengths) {
+    public Header encodeHeader(long bfinal, long btype, int[] literalLengths, int[] distanceLengths) {
         // 2. 코드 길이 배열 생성 및 RLE 인코딩
         int literalLength = literalLengths.length;
         for (int i = literalLengths.length - 1; i >= 0; i--) {
@@ -66,7 +66,7 @@ public class HeaderEncoder {
         // HCLEN: 사용된 코드 길이 알파벳 코드 수 - 4
         int hclen = maxCodeLengthCode - 4;
 
-        return createEncodedHeader(isFinalBlock ? 1 : 0, btype, hlit, hdist, hclen, codeLengths, rleEncoded, codes);
+        return createEncodedHeader(bfinal, btype, hlit, hdist, hclen, codeLengths, rleEncoded, codes);
     }
 
     private Map<Integer, Long> makeRleFrequency(List<Integer> rleEncoded) {

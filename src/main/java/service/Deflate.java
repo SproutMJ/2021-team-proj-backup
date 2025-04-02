@@ -86,7 +86,7 @@ public class Deflate {
         }
 
         HeaderEncoder headerEncoder = new HeaderEncoder();
-        Header encodedHeaderInfo = headerEncoder.encodeHeader(BitUtil.extractBits(bfinal).get(0) == 1, 2, literalLengths, distanceLengths);
+        Header encodedHeaderInfo = headerEncoder.encodeHeader(bfinal, btype, literalLengths, distanceLengths);
 
         //3단계 출력
         try (BitOutputStream bitOut = new BitOutputStream(new FileOutputStream(outputFile, true))) {
@@ -193,7 +193,7 @@ public class Deflate {
 
     public void decompress(String inputFile, String outputFile) throws IOException {
         try (BitInputStream bis = new BitInputStream(new FileInputStream(inputFile));
-             FileOutputStream fos = new FileOutputStream(outputFile)) {
+             FileOutputStream fos = new FileOutputStream(outputFile, true)) {
 
             boolean lastBlock = false;
 
@@ -202,7 +202,7 @@ public class Deflate {
                 HeaderDecoder headerDecoder = new HeaderDecoder();
                 Header decodedHeaderInfo = headerDecoder.decodeHeader(bis);
 
-                lastBlock = decodedHeaderInfo.getBfinal() == 1;
+                lastBlock = BitUtil.extractBits(decodedHeaderInfo.getBfinal()).get(0) == 1;
                 Map<Long, Integer> literalTree = decodedHeaderInfo.getLiteralTree();
 
                 Map<Long, Integer> distanceTree = decodedHeaderInfo.getDistanceTree();
