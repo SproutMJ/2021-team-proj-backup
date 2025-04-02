@@ -17,7 +17,8 @@ public class Deflate {
     Huffman huffman = new Huffman();
 
     public void compress(String inputFile, String outputFile) {
-        try (FileInputStream fis = new FileInputStream(inputFile)) {
+        try (FileInputStream fis = new FileInputStream(inputFile);
+             BitOutputStream bitOut = new BitOutputStream(new FileOutputStream(outputFile, true))) {
             File file = new File(inputFile);
             long fileSize = file.length(); // 파일 전체 크기
             long bytesReadTotal = 0;       // 지금까지 읽은 바이트 수
@@ -40,7 +41,7 @@ public class Deflate {
                 long btype = 0L;
                 btype = BitUtil.addBit(btype, 1);
                 btype = BitUtil.addBit(btype, 0);
-                dynamicCompress(buffer, outputFile, bfinal, btype);
+                dynamicCompress(buffer, bitOut, bfinal, btype);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,7 +49,7 @@ public class Deflate {
 
     }
 
-    private void dynamicCompress(byte[] data, String outputFile, long bfinal, long btype) throws IOException {
+    private void dynamicCompress(byte[] data, BitOutputStream bitOut, long bfinal, long btype) throws IOException {
         //1단계 LZ77
         List<LZ77.Triple> compressed = lz77.generateCodes(data);
 
@@ -88,13 +89,10 @@ public class Deflate {
         Header encodedHeaderInfo = headerEncoder.encodeHeader(bfinal, btype, literalLengths, distanceLengths);
 
         //3단계 출력
-        try (BitOutputStream bitOut = new BitOutputStream(new FileOutputStream(outputFile, true))) {
-            bitOutHeader(bitOut, encodedHeaderInfo);
-            bitOutRle(encodedHeaderInfo, bitOut);
-            bitOutLZ77(compressed, bitOut, literalCode, distanceCode);
-            bitOutEndCode(bitOut, literalCode);
-            bitOut.flush();
-        }
+        bitOutHeader(bitOut, encodedHeaderInfo);
+        bitOutRle(encodedHeaderInfo, bitOut);
+        bitOutLZ77(compressed, bitOut, literalCode, distanceCode);
+        bitOutEndCode(bitOut, literalCode);
     }
 
     private void bitOutHeader(BitOutputStream bitOut, Header encodedHeaderInfo) throws IOException {
